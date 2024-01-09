@@ -7,39 +7,30 @@ import kpan.b_line_break.config.core.ConfigVersionUpdateContext;
 
 public class ConfigHolder {
 
-	@Comment("Common settings(Blocks, items, etc.)")
-	@ConfigOrder(5)
-	public static Common common = new Common();
+//	@Comment("Common settings(Blocks, items, etc.)")
+//	@ConfigOrder(5)
+//	public static Common common = new Common();
 
 	public static class Common {
 
-		public EnumTest enumTest = EnumTest.test2;
-
-		public boolean boolValue = true;
-
-		public enum EnumTest {
-			TEST1,
-			test2,
-			Test3
-		}
 	}
 
 	@Comment("Client only settings(Rendering, resources, etc.)")
-	@ConfigOrder(3)
+	@ConfigOrder(1)
 	public static Client client = new Client();
 
 	public static class Client {
 
-		@Name("Gui IDs")
-		@Comment("Gui ID settings")
-		public GuiIDs Gui_IDs = new GuiIDs();
+		@Name("Line Break Algorithm")
+		@Comment("The algorithm used for line breaks")
+		@ConfigOrder(1)
+		public Algorithm lineBreakAlgorithm = Algorithm.NON_ASCII;
 
-		public static class GuiIDs {
-
-			@Comment("Gui ID1")
-			public int GuiId1 = 31;
+		public enum Algorithm {
+			VANILLA,
+			NON_ASCII,
+			PHRASE,
 		}
-
 	}
 
 	//	@Comment("Server settings(Behaviors, physics, etc.)")
@@ -48,15 +39,6 @@ public class ConfigHolder {
 	public static class Server {
 
 	}
-
-	@ConfigOrder(2)
-	public static long longVal = 89732434533L;
-
-	@ConfigOrder(1)
-	public static String string = "StrVal";
-
-	@ConfigOrder(4)
-	public static double ThisIsDouble = 343.123;
 
 	public static void updateVersion(ConfigVersionUpdateContext context) {
 		switch (context.loadedConfigVersion) {

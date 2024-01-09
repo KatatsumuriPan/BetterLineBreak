@@ -1,7 +1,7 @@
 package kpan.b_line_break;
 
-import kpan.b_line_break.config.core.ConfigHandler;
 import kpan.b_line_break.config.ConfigHolder;
+import kpan.b_line_break.config.core.ConfigHandler;
 import kpan.b_line_break.proxy.CommonProxy;
 import kpan.b_line_break.util.handlers.RegistryHandler;
 import net.minecraft.server.MinecraftServer;
@@ -35,7 +35,7 @@ public class ModMain {
 	public static CommonProxy proxy;
 
 	public static final Logger LOGGER = LogManager.getLogger(ModTagsGenerated.MODNAME);
-	
+
 	@Nullable
 	public static MinecraftServer server = null;
 	public static final ConfigHandler defaultConfig = new ConfigHandler(ConfigHolder.class, ModTagsGenerated.MODID, ConfigHolder.getVersion(), ConfigHolder::updateVersion);
@@ -59,7 +59,7 @@ public class ModMain {
 	public static void onServerAboutToStart(FMLServerAboutToStartEvent event) {
 		server = event.getServer();
 	}
-	
+
 	@EventHandler
 	public static void onServerStopped(FMLServerStoppedEvent event) {
 		server = null;
