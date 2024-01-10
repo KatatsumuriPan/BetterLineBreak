@@ -1,6 +1,6 @@
 # BetterLineBreak
 
-Better line break for other languages!
+Better line break for non-alphabet languages!
 
 # License
 
