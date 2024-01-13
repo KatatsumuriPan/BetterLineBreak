@@ -1,0 +1,34 @@
+{
+	"schemaVersion": 1,
+	"id": "better_line_break",
+	"version": "${version}",
+	"name": "Better Line Break",
+	"description": "This is an example description! Tell everyone what your mod is about!",
+	"authors": [
+		"Me!"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/better_line_break/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"kpan.b_line_break.BetterLineBreak"
+		]
+	},
+	"mixins": [
+		"better_line_break.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.15.3",
+		"minecraft": "~1.19.4",
+		"java": ">=17",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
