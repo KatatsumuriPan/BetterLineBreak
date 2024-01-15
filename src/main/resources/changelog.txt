@@ -1,0 +1,4 @@
+version 1.0.1 :
+ Fix bug that line-breaking algorithms are not applied to chat text.
+version 1.0.0 :
+ First release.
