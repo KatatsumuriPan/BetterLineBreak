@@ -2,6 +2,7 @@ package kpan.b_line_break.asm.core;
 
 import kpan.b_line_break.asm.core.adapters.MixinAccessorAdapter;
 import kpan.b_line_break.asm.tf.TF_FontRenderer;
+import kpan.b_line_break.asm.tf.TF_GuiUtilRenderComponents;
 import kpan.b_line_break.asm.tf.integration.smoothfont.TF_FontRendererHook;
 import net.minecraft.launchwrapper.IClassTransformer;
 import org.objectweb.asm.ClassReader;
@@ -32,6 +33,7 @@ public class ASMTransformer implements IClassTransformer {
 			cv = MixinAccessorAdapter.transformAccessor(cv, transformedName);
 			cv = TF_FontRenderer.appendVisitor(cv, transformedName);
 			cv = TF_FontRendererHook.appendVisitor(cv, transformedName);
+			cv = TF_GuiUtilRenderComponents.appendVisitor(cv, transformedName);
 
 			if (cv == cw)
 				return bytes;
