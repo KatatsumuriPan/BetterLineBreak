@@ -1,11 +1,14 @@
 {
-	"required": true,
-	"package": "kpan.b_line_break.mixin",
-	"compatibilityLevel": "JAVA_8",
-	"mixins": [
-		"ExampleMixin"
-	],
-	"injectors": {
-		"defaultRequire": 1
-	}
+  "required": true,
+  "package": "kpan.b_line_break.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "client": [
+    "TextRendererMixin",
+    "TextsMixin"
+  ]
 }

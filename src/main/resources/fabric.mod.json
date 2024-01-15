@@ -1,34 +1,37 @@
 {
-	"schemaVersion": 1,
-	"id": "better_line_break",
-	"version": "${version}",
-	"name": "Better Line Break",
-	"description": "This is an example description! Tell everyone what your mod is about!",
-	"authors": [
-		"Me!"
-	],
-	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
-	},
-	"license": "CC0-1.0",
-	"icon": "assets/better_line_break/icon.png",
-	"environment": "*",
-	"entrypoints": {
-		"main": [
-			"kpan.b_line_break.BetterLineBreak"
-		]
-	},
-	"mixins": [
-		"better_line_break.mixins.json"
-	],
-	"depends": {
-		"fabricloader": ">=0.15.3",
-		"minecraft": "~1.14.4",
-		"java": ">=8",
-		"fabric": "*"
-	},
-	"suggests": {
-		"another-mod": "*"
-	}
+  "schemaVersion": 1,
+  "id": "better_line_break",
+  "version": "${version}",
+  "name": "Better Line Break",
+  "description": "Better line break for non-alphabet languages!",
+  "authors": [
+    "Katatsumuri.pan"
+  ],
+  "contact": {
+    "homepage": "https://fabricmc.net/",
+    "sources": "https://github.com/FabricMC/fabric-example-mod"
+  },
+  "license": "CC0-1.0",
+  "icon": "assets/better_line_break/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "kpan.b_line_break.BetterLineBreak"
+    ],
+    "modmenu": [
+      "kpan.b_line_break.config.ModMenuIntegration"
+    ]
+  },
+  "mixins": [
+    "better_line_break.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.15.3",
+    "minecraft": "~1.14.4",
+    "java": ">=8",
+    "fabric": "*"
+  },
+  "suggests": {
+    "another-mod": "*"
+  }
 }
