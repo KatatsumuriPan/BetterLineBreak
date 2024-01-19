@@ -10,7 +10,7 @@
   "contact": {
     "sources": "https://github.com/KatatsumuriPan/BetterLineBreak"
   },
-  "license": "CC0-1.0",
+  "license": "LGPL-2.1",
   "icon": "assets/better_line_break/icon.png",
   "environment": "*",
   "entrypoints": {
