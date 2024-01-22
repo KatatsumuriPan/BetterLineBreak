@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.ints.IntSets;
+import kpan.b_line_break.compat.CompatFontRenderer;
 import kpan.b_line_break.config.ConfigHolder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -31,6 +32,10 @@ public class LineBreakingUtil {
 		int idx;
 		for (idx = 0; idx < length; ++idx) {
 			char c = text.charAt(idx);
+			if (c == '\n') {
+				breakIndex = idx;
+				break;
+			}
 			switch (c) {
 				case '§': {
 					if (idx < length - 1) {
@@ -45,10 +50,6 @@ public class LineBreakingUtil {
 					}
 					break;
 				}
-				case '\n': {
-					--idx;
-					break;
-				}
 				case ' ': {
 					breakIndex = idx;
 					//fall through
@@ -58,15 +59,11 @@ public class LineBreakingUtil {
 						breakLine = false;
 					if (idx > 0 && canBreak(text.charAt(idx - 1), c, idx, breakIndices))
 						breakIndex = idx;
-					width += fontRenderer.getCharWidth(c);
+					width += CompatFontRenderer.getCharWidthFloat(fontRenderer, c);
 					if (isBold)
-						width += 1.0f;
+						width += CompatFontRenderer.getOffsetBold(fontRenderer, c);
 					break;
 				}
-			}
-			if (c == '\n') {
-				breakIndex = ++idx;
-				break;
 			}
 			if (!(width > wrapWidth))
 				continue;
