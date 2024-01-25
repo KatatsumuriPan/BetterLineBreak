@@ -357,6 +357,11 @@ public class LineBreakingUtil {
 			int len = text.length();
 			for (int i = startIndex; i < len; ++i) {
 				char c = text.charAt(i);
+				if (c == '\n') {
+					lastBreak = i + offset;
+					lastBreakStyle = style;
+					return LineBreakResult.ending(lastBreak, lastBreakStyle);
+				}
 				if (c == '§') {
 					if (i + 1 >= len)
 						break;
