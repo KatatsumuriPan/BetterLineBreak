@@ -1,0 +1,15 @@
+{
+  "gui.config.applyGlobally": "Apply globally",
+  "gui.config.confirmRestartMessage": "I Understand",
+  "gui.config.gameRestartRequired": "One or more changed settings requires that Minecraft be restarted before taking effect.",
+  "gui.config.gameRestartTitle": "Minecraft Restart Required",
+  "gui.config.tooltip.addNewEntryAbove": "Add New Entry Above",
+  "gui.config.tooltip.applyGlobally": "Apply Undo Changes or Reset to Default globally.",
+  "gui.config.tooltip.removeEntry": "Remove Entry",
+  "gui.config.tooltip.resetAll": "Reset All to Default. If the Apply globally checkbox is checked values on child screens will also be reset.",
+  "gui.config.tooltip.resetToDefault": "Reset to Default",
+  "gui.config.tooltip.undoAll": "Undo All Changes. If the Apply globally checkbox is checked changes to child screens will also be undone.",
+  "gui.config.tooltip.undoChanges": "Undo Changes",
+  "gui.config.tooltip.default": "[default: %s]",
+  "gui.config.tooltip.defaultNumeric": "[range: %s ~ %s, default: %s]"
+}
