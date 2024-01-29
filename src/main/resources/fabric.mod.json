@@ -3,20 +3,22 @@
 	"id": "better_line_break",
 	"version": "${version}",
 	"name": "Better Line Break",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"description": "Better line break for non-alphabet languages!",
 	"authors": [
-		"Me!"
+		"Katatsumuri.pan"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"sources": "https://github.com/KatatsumuriPan/BetterLineBreak"
 	},
-	"license": "CC0-1.0",
+	"license": "LGPL-2.1",
 	"icon": "assets/better_line_break/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"main": [
 			"kpan.b_line_break.BetterLineBreak"
+		],
+		"modmenu": [
+			"kpan.b_line_break.config.ModMenuIntegration"
 		]
 	},
 	"mixins": [
