@@ -161,7 +161,9 @@ public class LineBreakingUtil {
 					return false;
 				if (isStartBracket(prevChar))
 					return false;
-				return breakIndices.contains(index);
+				if (!isNormalAsciiLetter(prevChar) && isNormalAsciiLetter(c))
+					return true;
+				return false;
 			}
 			default -> throw new AssertionError();
 		}
