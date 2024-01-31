@@ -399,7 +399,7 @@ public class LineBreakingUtil {
 					}
 				} else {
 
-					if (c == ' ' || i > 0 && canBreak(text.charAt(i), c, i, breakIndices)) {
+					if (c == ' ' || i > startIndex && canBreak(text.charAt(i), c, i, breakIndices)) {
 						lastBreak = i + offset;
 						lastBreakStyle = style;
 					}
