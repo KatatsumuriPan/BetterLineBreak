@@ -1,5 +1,9 @@
 # Change Log
 
+### [1.12.2-1.0.3](https://github.com/KatatsumuriPan/BetterLineBreak/releases/tag/1.12.2-1.0.3) - 2024-01-31
+
+- Fix not break between non-ASCII and ASCII in PHRASE mode.
+
 ### [1.12.2-1.0.2](https://github.com/KatatsumuriPan/BetterLineBreak/releases/tag/1.12.2-1.0.2) - 2024-01-20
 
 - Fix incorrect char widths with using Optifine and Smooth Font.
