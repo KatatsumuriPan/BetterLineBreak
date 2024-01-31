@@ -1,0 +1,99 @@
+# Publishes built jars to distribution platforms
+name: Publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      # 自動読み取りできたら最高
+      mc_version:
+        description: 'MC Version'
+        required: true
+      version:
+        description: 'Mod version'
+        required: true
+      mod_loader:
+        description: 'Mod Loader'
+        type: choice
+        default: 'forge'
+        options:
+          - 'forge'
+          - 'fabric'
+      # これ自体は要らない
+      # 参考として
+      release_type:
+        description: 'Release type'
+        type: choice
+        default: 'beta'
+        options:
+          - 'release'
+          - 'beta'
+          - 'alpha'
+
+env:
+  FULL_VERSION: "${{ github.event.inputs.version }}"
+  NAME: "BetterLineBreak"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Check if tag already exists
+        run: |
+          if git rev-parse --verify --quiet "v${{ github.event.inputs.version }}"; then
+            echo "Version ${{ github.event.inputs.version }} already exists, aborting workflow."
+            exit 1
+          fi
+
+      # gradle.propertiesの書き換えはしないかも
+      #      - name: Set version
+      #        run: sed -i "s/modVersion.*=.*/modVersion = ${{ env.FULL_VERSION }}/g" gradle.properties
+
+      # 自動コミットはしないかも
+      #      - name: Commit and push gradle.properties
+      #        uses: stefanzweifel/git-auto-commit-action@v5
+      #        with:
+      #          commit_message: "Bump version to v${{ env.FULL_VERSION }}"
+      #          commit_options: '--no-verify'
+      #          file_pattern: gradle.properties
+      #          tagging_message: "v${{ env.FULL_VERSION }}"
+
+      - name: Setup Build
+        uses: ./.github/actions/build_setup
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build Project
+        run: ./gradlew --scan --build-cache --info --stacktrace build
+
+      # 場合によっては分離した方が楽説
+      - name: Publish to Curseforge and Modrinth
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          github-tag: "${{ github.event.inputs.mc_version }}-${{ github.event.inputs.mod_loader }}-${{ env.FULL_VERSION }}"
+          # changelog形式
+          github-generate-changelog: true
+          github-draft: false
+          github-prerelease: false
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          modrinth-id: 'zp6DtFf2'
+          modrinth-token: "${{ secrets.MODRINTH_API_KEY }}"
+          modrinth-dependencies: ${{ github.event.inputs.mod_loader == "fabric" && [cloth-config(required), modmenu(required)] || [] }}
+          curseforge-id: '960082'
+          curseforge-token: "${{ secrets.CURSEFORGE_API_KEY }}"
+          curseforge-dependencies: ${{ github.event.inputs.mod_loader == "fabric" && (startsWith(github.event.inputs.mc_version, "1.14.") && [cloth-config(required), modmenu(required), auto-config-updated-api(required)] || [cloth-config(required), modmenu(required)]) || [] }}
+          files: |
+            build/libs/!(*-@(dev|sources|javadoc)).jar
+            build/libs/*-@(sources).jar
+          name: "${{ env.NAME }}-${{ github.event.inputs.mc_version }}(${{ github.event.inputs.mod_loader == "forge" && "Forge" || "Fabric" }})-${{ env.FULL_VERSION }}(Github Action Testing...)"
+          # changelog
+          #changelog: "Changelog is available [here](https://github.com/${{github.repository}}/blob/master/CHANGELOG.md)"
+          version: "${{ github.event.inputs.version }}"
+          version-type: "release"
+          loaders: "${{ github.event.inputs.mod_loader }}"
+          game-versions: "${{ github.event.inputs.mc_version }}"
+          java: ${{ startsWith(github.event.inputs.mc_version, "1.16.") && [Java16, Java17, Java18] || (startsWith(github.event.inputs.mc_version, "1.17.") || startsWith(github.event.inputs.mc_version, "1.18.") || startsWith(github.event.inputs.mc_version, "1.19.") || startsWith(github.event.inputs.mc_version, "1.20.")) && [Java17, Java18] || [Java8] }}
+          retry-attempts: 2
