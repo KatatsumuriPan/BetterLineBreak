@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.budoux;
+package kpan.b_line_break.budoux;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
