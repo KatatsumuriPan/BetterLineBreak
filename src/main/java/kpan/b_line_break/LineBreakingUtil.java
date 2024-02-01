@@ -169,7 +169,9 @@ public class LineBreakingUtil {
 					return false;
 				if (isStartBracket(prevChar))
 					return false;
-				return breakIndices.contains(index);
+				if (!isNormalAsciiLetter(prevChar) && isNormalAsciiLetter(c))
+					return true;
+				return false;
 			default:
 				throw new AssertionError();
 		}
@@ -399,7 +401,7 @@ public class LineBreakingUtil {
 					}
 				} else {
 
-					if (c == ' ' || i > 0 && canBreak(text.charAt(i), c, i, breakIndices)) {
+					if (c == ' ' || i > startIndex && canBreak(text.charAt(i), c, i, breakIndices)) {
 						lastBreak = i + offset;
 						lastBreakStyle = style;
 					}
