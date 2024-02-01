@@ -7,11 +7,14 @@ on:
       mod_platform:
         description: 'Mod platform'
         type: choice
-        default: 'CurseForge and Modrinth'
+        default: 'CurseForge and Modrinth and Github'
         options:
-          - 'CurseForge and Modrinth'
+          - 'CurseForge and Modrinth and Github'
           - 'CurseForge'
           - 'Modrinth'
+          - 'Github'
+      commitish:
+        description: 'Commit id'
 
 jobs:
   build:
@@ -21,6 +24,18 @@ jobs:
       NAME: "BetterLineBreak"
       MODRINTH_ID: "zp6DtFf2"
       CURSEFORGE_ID: "960082"
+      CURSEFORGE_FORGE_DEPENDENCIES: ""
+      CURSEFORGE_FABRIC_DEPENDENCIES: |
+        cloth-config(required)
+        modmenu(required)
+      CURSEFORGE_FABRIC114_DEPENDENCIES: |
+        cloth-config(required)
+        modmenu(required)
+        auto-config-updated-api(required)
+      MODRINTH_FORGE_DEPENDENCIES: ""
+      MODRINTH_FABRIC_DEPENDENCIES: |
+        cloth-config(required)
+        modmenu(required)
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -31,16 +46,30 @@ jobs:
         run: |
           echo "MC_VERSION=${{ env.BRANCH_NAME }}" | sed "s/\/.*//" >> $GITHUB_ENV
           echo "MOD_LOADER=${{ env.BRANCH_NAME }}" | sed "s/=.*\//=/" >> $GITHUB_ENV
-          cat "CHANGELOG.md" | tr -d '\r\n' | sed -r "s/[^-]*-([^]]*).*/RELEASE_VERSION=\1/"  >> $GITHUB_ENV
+          cat "CHANGELOG.md" | tr -d '\r\n' | sed -r "s/[^-]*-[^-]*-([^]]*).*/RELEASE_VERSION=\1\n/"  >> $GITHUB_ENV
+          if [ -z "${{ github.event.inputs.commitish }}" ]; then
+            echo "COMMITISH=${{ env.BRANCH_NAME }}" >> $GITHUB_ENV
+          else
+            echo "COMMITISH=${{ github.event.inputs.commitish }}" >> $GITHUB_ENV
+          fi
 
       - name: 環境変数の動的定義2
         run: |
           echo "TAG_NAME=${{ env.MC_VERSION }}-${{ env.MOD_LOADER }}-${{ env.RELEASE_VERSION }}" >> $GITHUB_ENV
 
       - name: modの依存関係の動的定義
+        id: dependencies
         run: |
-          echo "CURSEFORGE_DEPENDENCIES=${{ env.MOD_LOADER == 'fabric' && (startsWith(env.MC_VERSION, '1.14.') && 'cloth-config(required)\nmodmenu(required)\nauto-config-updated-api(required)' || 'cloth-config(required)\nmodmenu(required)') || '' }}" >> $GITHUB_ENV
-          echo "MODRINTH_DEPENDENCIES=${{ env.MOD_LOADER == 'fabric' && 'cloth-config(required)\nmodmenu(required)' || '' }}" >> $GITHUB_ENV
+          {
+            echo 'CURSEFORGE<<EOF'
+            echo "${{ env.MOD_LOADER == 'fabric' && (startsWith(env.MC_VERSION, '1.14.') && env.CURSEFORGE_FABRIC114_DEPENDENCIES || env.CURSEFORGE_FORGE_DEPENDENCIES) || env.CURSEFORGE_FABRIC114_DEPENDENCIES }}"
+            echo -e "\nEOF"
+          } >> $GITHUB_OUTPUT
+          {
+            echo 'MODRINTH<<EOF'
+            echo "${{ env.MOD_LOADER == 'fabric' && env.MODRINTH_FABRIC_DEPENDENCIES || env.MODRINTH_FORGE_DEPENDENCIES }}"
+            echo -e "\nEOF"
+          } >> $GITHUB_OUTPUT
 
       - name: CHANGELOGの中身保存
         id: changelog
@@ -57,9 +86,10 @@ jobs:
           echo "MOD_LOADER" "${{ env.MOD_LOADER }}"
           echo "RELEASE_VERSION" "${{ env.RELEASE_VERSION }}"
           echo "TAG_NAME" "${{ env.TAG_NAME }}"
+          echo "COMMITISH" "${{ env.COMMITISH }}"
           echo "CHANGELOG" "${{ steps.changelog.outputs.CHANGELOG }}"
-          echo "CURSEFORGE_DEPENDENCIES" "${{ env.CURSEFORGE_DEPENDENCIES }}"
-          echo "MODRINTH_DEPENDENCIES" "${{ env.MODRINTH_DEPENDENCIES }}"
+          echo "CURSEFORGE_DEPENDENCIES" "${{ steps.dependencies.outputs.CURSEFORGE }}"
+          echo "MODRINTH_DEPENDENCIES" "${{ steps.dependencies.outputs.MODRINTH }}"
           if [[ "${{ env.MC_VERSION }}" != *"."* ]]; then
             echo 'Invalid MC version "${{ env.MC_VERSION }}", aborting workflow.'
             exit 1
@@ -74,6 +104,7 @@ jobs:
           fi
 
       - name: Check if tag already exists
+        if: ${{ contains(github.event.inputs.mod_platform, 'Github') }}
         run: |
           if git rev-parse --verify --quiet "${{ env.TAG_NAME }}"; then
             echo "Tag ${{ env.TAG_NAME }} already exists, aborting workflow."
@@ -102,27 +133,26 @@ jobs:
       - name: Build Project
         run: ./gradlew --scan --build-cache --info --stacktrace build
 
-      - name: Publish to Curseforge and Modrinth
+      - name: Publish to CurseForge and Modrinth and Github
         uses: Kir-Antipov/mc-publish@v3.3
-        if: ${{ github.event.inputs.mod_platform == 'CurseForge and Modrinth' }}
+        if: ${{ github.event.inputs.mod_platform == 'CurseForge and Modrinth and Github' }}
         with:
           github-tag: "${{ env.TAG_NAME }}"
           github-generate-changelog: false
-          github-draft: false
-          github-prerelease: false
+          github-commitish: "${{ env.COMMITISH }}"  #タグを生成するブランチ
           github-token: "${{ secrets.GITHUB_TOKEN }}"
           modrinth-id: "${{ env.MODRINTH_ID }}"
           modrinth-token: "${{ secrets.MODRINTH_API_KEY }}"
-          modrinth-dependencies: "${{ env.MODRINTH_DEPENDENCIES }}"
+          modrinth-dependencies: "${{ steps.dependencies.outputs.MODRINTH }}"
           curseforge-id: "${{ env.CURSEFORGE_ID }}"
           curseforge-token: "${{ secrets.CURSEFORGE_API_KEY }}"
-          curseforge-dependencies: "${{ env.CURSEFORGE_DEPENDENCIES }}"
+          curseforge-dependencies: "${{ steps.dependencies.outputs.CURSEFORGE }}"
           files: |
             build/libs/!(*-@(dev|sources|javadoc)).jar
             build/libs/*-@(sources).jar
           name: "${{ env.NAME }}-${{ env.MC_VERSION }}(${{ env.MOD_LOADER == 'forge' && 'Forge' || 'Fabric' }})-${{ env.RELEASE_VERSION }}"
           changelog: "${{ steps.changelog.outputs.CHANGELOG }}"
-          version: "${{ env.MC_VERSION }}"
+          version: "${{ env.RELEASE_VERSION }}"
           version-type: "release"
           loaders: "${{ env.MOD_LOADER }}"
           game-versions: "${{ env.MC_VERSION }}"
@@ -133,20 +163,15 @@ jobs:
         uses: Kir-Antipov/mc-publish@v3.3
         if: ${{ github.event.inputs.mod_platform == 'CurseForge' }}
         with:
-          github-tag: "${{ env.TAG_NAME }}"
-          github-generate-changelog: false
-          github-draft: false
-          github-prerelease: false
-          github-token: "${{ secrets.GITHUB_TOKEN }}"
           curseforge-id: "${{ env.CURSEFORGE_ID }}"
           curseforge-token: "${{ secrets.CURSEFORGE_API_KEY }}"
-          curseforge-dependencies: "${{ env.CURSEFORGE_DEPENDENCIES }}"
+          curseforge-dependencies: "${{ steps.dependencies.outputs.CURSEFORGE }}"
           files: |
             build/libs/!(*-@(dev|sources|javadoc)).jar
             build/libs/*-@(sources).jar
           name: "${{ env.NAME }}-${{ env.MC_VERSION }}(${{ env.MOD_LOADER == 'forge' && 'Forge' || 'Fabric' }})-${{ env.RELEASE_VERSION }}"
           changelog: "${{ steps.changelog.outputs.CHANGELOG }}"
-          version: "${{ env.MC_VERSION }}"
+          version: "${{ env.RELEASE_VERSION }}"
           version-type: "release"
           loaders: "${{ env.MOD_LOADER }}"
           game-versions: "${{ env.MC_VERSION }}"
@@ -157,22 +182,34 @@ jobs:
         uses: Kir-Antipov/mc-publish@v3.3
         if: ${{ github.event.inputs.mod_platform == 'Modrinth' }}
         with:
-          github-tag: "${{ env.TAG_NAME }}"
-          github-generate-changelog: false
-          github-draft: false
-          github-prerelease: false
-          github-token: "${{ secrets.GITHUB_TOKEN }}"
           modrinth-id: "${{ env.MODRINTH_ID }}"
           modrinth-token: "${{ secrets.MODRINTH_API_KEY }}"
-          modrinth-dependencies: "${{ env.MODRINTH_DEPENDENCIES }}"
+          modrinth-dependencies: "${{ steps.dependencies.outputs.MODRINTH }}"
           files: |
             build/libs/!(*-@(dev|sources|javadoc)).jar
             build/libs/*-@(sources).jar
           name: "${{ env.NAME }}-${{ env.MC_VERSION }}(${{ env.MOD_LOADER == 'forge' && 'Forge' || 'Fabric' }})-${{ env.RELEASE_VERSION }}"
           changelog: "${{ steps.changelog.outputs.CHANGELOG }}"
-          version: "${{ env.MC_VERSION }}"
+          version: "${{ env.RELEASE_VERSION }}"
           version-type: "release"
           loaders: "${{ env.MOD_LOADER }}"
           game-versions: "${{ env.MC_VERSION }}"
           java: "${{ startsWith(env.MC_VERSION, '1.16.') && '16\n17\n18' || (startsWith(env.MC_VERSION, '1.17.') || startsWith(env.MC_VERSION, '1.18.') || startsWith(env.MC_VERSION, '1.19.') || startsWith(env.MC_VERSION, '1.20.')) && '17\n18' || '8' }}"
+          retry-attempts: 2
+
+      - name: Publish only to Github
+        uses: Kir-Antipov/mc-publish@v3.3
+        if: ${{ github.event.inputs.mod_platform == 'Github' }}
+        with:
+          github-tag: "${{ env.TAG_NAME }}"
+          github-generate-changelog: false
+          github-commitish: "${{ env.COMMITISH }}"  #タグを生成するブランチ
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+          files: |
+            build/libs/!(*-@(dev|sources|javadoc)).jar
+            build/libs/*-@(sources).jar
+          name: "${{ env.NAME }}-${{ env.MC_VERSION }}(${{ env.MOD_LOADER == 'forge' && 'Forge' || 'Fabric' }})-${{ env.RELEASE_VERSION }}"
+          changelog: "${{ steps.changelog.outputs.CHANGELOG }}"
+          version: "${{ env.RELEASE_VERSION }}"
+          version-type: "release"
           retry-attempts: 2
