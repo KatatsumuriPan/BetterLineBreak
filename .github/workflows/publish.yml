@@ -28,6 +28,7 @@ jobs:
       CURSEFORGE_FABRIC_DEPENDENCIES: |
         cloth-config(required)
         modmenu(required)
+      # BetterLineBreakに限り、1.14.4かどうかで依存関係が変化する
       CURSEFORGE_FABRIC114_DEPENDENCIES: |
         cloth-config(required)
         modmenu(required)
@@ -40,9 +41,9 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 #これが無いと正しくタグの存在を判定できない模様
+          fetch-depth: 0 # これが無いと正しくタグの存在を判定できない模様
 
-      - name: 環境変数の動的定義
+      - name: 環境変数の動的構築
         run: |
           echo "MC_VERSION=${{ env.BRANCH_NAME }}" | sed "s/\/.*//" >> $GITHUB_ENV
           echo "MOD_LOADER=${{ env.BRANCH_NAME }}" | sed "s/=.*\//=/" >> $GITHUB_ENV
@@ -53,25 +54,38 @@ jobs:
             echo "COMMITISH=${{ github.event.inputs.commitish }}" >> $GITHUB_ENV
           fi
 
-      - name: 環境変数の動的定義2
+      - name: 環境変数の動的構築2
         run: |
           echo "TAG_NAME=${{ env.MC_VERSION }}-${{ env.MOD_LOADER }}-${{ env.RELEASE_VERSION }}" >> $GITHUB_ENV
 
-      - name: modの依存関係の動的定義
+      - name: modの依存関係の動的構築
         id: dependencies
         run: |
           {
             echo 'CURSEFORGE<<EOF'
-            echo "${{ env.MOD_LOADER == 'fabric' && (startsWith(env.MC_VERSION, '1.14.') && env.CURSEFORGE_FABRIC114_DEPENDENCIES || env.CURSEFORGE_FORGE_DEPENDENCIES) || env.CURSEFORGE_FABRIC114_DEPENDENCIES }}"
+            if [[ "${{ env.MOD_LOADER }}" == fabric ]]; then
+              # BetterLineBreakに限り、1.14.4かどうかで依存関係が変化する
+              if [[ "${{ env.MC_VERSION }}" == 1.14.* ]]; then
+                echo "${{ env.CURSEFORGE_FABRIC114_DEPENDENCIES }}"
+              else
+                echo "${{ env.CURSEFORGE_FABRIC_DEPENDENCIES }}"
+              fi
+            else
+              echo "${{ env.CURSEFORGE_FORGE_DEPENDENCIES }}"
+            fi
             echo -e "\nEOF"
           } >> $GITHUB_OUTPUT
           {
             echo 'MODRINTH<<EOF'
-            echo "${{ env.MOD_LOADER == 'fabric' && env.MODRINTH_FABRIC_DEPENDENCIES || env.MODRINTH_FORGE_DEPENDENCIES }}"
+            if [[ "${{ env.MOD_LOADER }}" == fabric ]]; then
+              echo "${{ env.MODRINTH_FABRIC_DEPENDENCIES }}"
+            else
+              echo "${{ env.MODRINTH_FORGE_DEPENDENCIES }}"
+            fi
             echo -e "\nEOF"
           } >> $GITHUB_OUTPUT
 
-      - name: CHANGELOGの中身保存
+      - name: CHANGELOGの中身（先頭のみ）取得
         id: changelog
         run: |
           {
@@ -139,7 +153,7 @@ jobs:
         with:
           github-tag: "${{ env.TAG_NAME }}"
           github-generate-changelog: false
-          github-commitish: "${{ env.COMMITISH }}"  #タグを生成するブランチ
+          github-commitish: "${{ env.COMMITISH }}"  # タグを生成するブランチ
           github-token: "${{ secrets.GITHUB_TOKEN }}"
           modrinth-id: "${{ env.MODRINTH_ID }}"
           modrinth-token: "${{ secrets.MODRINTH_API_KEY }}"
@@ -203,7 +217,7 @@ jobs:
         with:
           github-tag: "${{ env.TAG_NAME }}"
           github-generate-changelog: false
-          github-commitish: "${{ env.COMMITISH }}"  #タグを生成するブランチ
+          github-commitish: "${{ env.COMMITISH }}"  # タグを生成するブランチ
           github-token: "${{ secrets.GITHUB_TOKEN }}"
           files: |
             build/libs/!(*-@(dev|sources|javadoc)).jar
