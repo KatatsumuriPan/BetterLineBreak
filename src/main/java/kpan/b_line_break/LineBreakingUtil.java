@@ -195,13 +195,13 @@ public class LineBreakingUtil {
                 Language language = Minecraft.getMinecraft().getLanguageManager().getCurrentLanguage();
                 switch (language.getLanguageCode()) {
                     case "ja_jp":
-                        return Parser.loadByFileName("/models/ja_tuned.json");
+                        return Parser.Cache.getOrLoad("/models/ja_tuned.json");
                     case "zh_cn":
-                        return Parser.loadDefaultSimplifiedChineseParser();
+                        return Parser.Cache.getOrLoad("/models/zh-hans.json");
                     case "zh_tw":
-                        return Parser.loadDefaultTraditionalChineseParser();
+                        return Parser.Cache.getOrLoad("/models/zh-hant.json");
                     case "th_th":
-                        return Parser.loadDefaultThaiParser();
+                        return Parser.Cache.getOrLoad("/models/th.json");
                     default:
                         return null;
                 }

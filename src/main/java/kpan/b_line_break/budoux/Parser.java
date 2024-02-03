@@ -21,6 +21,7 @@ import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -33,8 +34,9 @@ import java.util.Map;
 import java.util.Optional;
 
 /*
-・HTMLは使用しないので、translateHTMLStringを削除しています。
-・totalScoreをキャッシュしています。
+ * HTMLは使用しないので、translateHTMLStringを削除しています。
+ * totalScoreをキャッシュしています。
+ * シンプルなCacheクラスを作成しています。
  */
 public class Parser {
     private final Map<String, Map<String, Integer>> model;
@@ -176,4 +178,20 @@ public class Parser {
         return result;
     }
 
+    /*
+    流石に毎回ファイルIOが走るのは良くないのでキャッシュ
+     */
+    public static class Cache {
+
+        private static @Nullable String modelFileName = null;
+        private static Parser parser;
+
+        public static Parser getOrLoad(String modelFileName) {
+            if (modelFileName.equals(Cache.modelFileName))
+                return parser;
+            Cache.modelFileName = modelFileName;
+            parser = Parser.loadByFileName(modelFileName);
+            return parser;
+        }
+    }
 }
