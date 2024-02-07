@@ -27,6 +27,9 @@ import java.util.stream.Collectors;
 
 public class LineBreakingUtil {
 
+	public static void splitLines(CharacterManager textHandler, String text, int maxWidth, Style resetStyle, boolean retainTrailingWordSplit, ISliceAcceptor consumer) {
+		splitLines(textHandler, text, (float) maxWidth, resetStyle, retainTrailingWordSplit, consumer);
+	}
 	public static void splitLines(CharacterManager textHandler, String text, float maxWidth, Style resetStyle, boolean retainTrailingWordSplit, ISliceAcceptor consumer) {
 		int i = 0;
 		int len = text.length();
