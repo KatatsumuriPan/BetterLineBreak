@@ -17,17 +17,9 @@ on:
         description: 'Commit id'
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # これが無いと正しくタグの存在を判定できない模様
-
-      - name: Call workflow
-        uses: KatatsumuriPan/KpansGitHubActions/.github/workflows/publish_base.yml@develop
-        with:
-          mod_platform: "${{ github.event.inputs.mod_platform }}"
-          commitish: "${{ github.event.inputs.commitish }}"
+  call_other:
+    uses: KatatsumuriPan/KpansGitHubActions/.github/workflows/publish_base.yml@develop
+    with:
+      mod_platform: "${{ github.event.inputs.mod_platform }}"
+      commitish: "${{ github.event.inputs.commitish }}"
 
