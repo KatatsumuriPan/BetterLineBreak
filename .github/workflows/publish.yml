@@ -18,7 +18,7 @@ on:
 
 jobs:
   call_other:
-    uses: KatatsumuriPan/KpansGitHubActions/.github/workflows/publish_base.yml@develop
+    uses: KatatsumuriPan/KpansGitHubActions/.github/workflows/publish_base.yml@main
     with:
       mod_platform: "${{ github.event.inputs.mod_platform }}"
       commitish: "${{ github.event.inputs.commitish }}"
