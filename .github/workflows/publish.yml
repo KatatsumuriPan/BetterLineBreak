@@ -46,7 +46,7 @@ jobs:
       - name: 環境変数の動的構築
         run: |
           echo "MC_VERSION=${{ env.BRANCH_NAME }}" | sed "s/\/.*//" >> $GITHUB_ENV
-          echo "MOD_LOADER=${{ env.BRANCH_NAME }}" | sed "s/=.*\//=/" >> $GITHUB_ENV
+          echo "MOD_LOADER=fabric" >> $GITHUB_ENV
           cat "CHANGELOG.md" | tr -d '\r\n' | sed -r "s/[^-]*-[^-]*-([^]]*).*/RELEASE_VERSION=\1\n/"  >> $GITHUB_ENV
           if [ -z "${{ github.event.inputs.commitish }}" ]; then
             echo "COMMITISH=${{ env.BRANCH_NAME }}" >> $GITHUB_ENV
