@@ -199,4 +199,4 @@ jobs:
           -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
           -H "X-GitHub-Api-Version: 2022-11-28" \
           https://api.github.com/repos/KatatsumuriPan/BetterLineBreak/releases \
-          -d '{"tag_name":"v1.0.0","target_commitish":"0e2179db3d7623ccabd14d2b6b857ee68c99ea53","name":"v1.0.0","body":"Description of the release","draft":false,"prerelease":false,"generate_release_notes":false}'
+          -d '{"tag_name":"v1.0.0","target_commitish":"dea2cacfc3fd14262d05350ec61ae1d9ee1ad85a","name":"v1.0.0","body":"Description of the release","draft":false,"prerelease":false,"generate_release_notes":false}'
