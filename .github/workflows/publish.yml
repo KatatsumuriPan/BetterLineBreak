@@ -20,28 +20,30 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
+      ENV_FILE_NAME: publish_env.yml
       BRANCH_NAME: "${{ github.ref_name }}"
-      NAME: "BetterLineBreak"
-      MODRINTH_ID: "zp6DtFf2"
-      CURSEFORGE_ID: "960082"
-      CURSEFORGE_FORGE_DEPENDENCIES: ""
-      CURSEFORGE_FABRIC_DEPENDENCIES: |
-        cloth-config(required)
-        modmenu(required)
-      # BetterLineBreakに限り、1.14.4かどうかで依存関係が変化する
-      CURSEFORGE_FABRIC114_DEPENDENCIES: |
-        cloth-config(required)
-        modmenu(required)
-        auto-config-updated-api(required)
-      MODRINTH_FORGE_DEPENDENCIES: ""
-      MODRINTH_FABRIC_DEPENDENCIES: |
-        cloth-config(required)
-        modmenu(required)
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0 # これが無いと正しくタグの存在を判定できない模様
+          token: ${{ secrets.PAT_GITHUB }}
+
+      - name: 環境変数の読み込み
+        run: |
+          echo NAME=$(yq '.NAME' ${{ env.ENV_FILE_NAME }}) >> $GITHUB_ENV
+          echo CURSEFORGE_ID=$(yq '.CURSEFORGE_ID' ${{ env.ENV_FILE_NAME }}) >> $GITHUB_ENV
+          echo MODRINTH_ID=$(yq '.MODRINTH_ID' ${{ env.ENV_FILE_NAME }}) >> $GITHUB_ENV
+          {
+            echo 'CURSEFORGE_DEPENDENCIES<<EOF'
+            echo $(yq '.CURSEFORGE_DEPENDENCIES' ${{ env.ENV_FILE_NAME }}) | tr " " "\n"
+            echo EOF
+          } >> $GITHUB_ENV
+          {
+            echo 'MODRINTH_DEPENDENCIES<<EOF'
+            echo $(yq '.MODRINTH_DEPENDENCIES' ${{ env.ENV_FILE_NAME }}) | tr " " "\n"
+            echo EOF
+          } >> $GITHUB_ENV
 
       - name: 環境変数の動的構築
         run: |
@@ -58,33 +60,6 @@ jobs:
         run: |
           echo "TAG_NAME=${{ env.MC_VERSION }}-${{ env.MOD_LOADER }}-${{ env.RELEASE_VERSION }}-TEST" >> $GITHUB_ENV
 
-      - name: modの依存関係の動的構築
-        id: dependencies
-        run: |
-          {
-            echo 'CURSEFORGE<<EOF'
-            if [[ "${{ env.MOD_LOADER }}" == fabric ]]; then
-              # BetterLineBreakに限り、1.14.4かどうかで依存関係が変化する
-              if [[ "${{ env.MC_VERSION }}" == 1.14.* ]]; then
-                echo "${{ env.CURSEFORGE_FABRIC114_DEPENDENCIES }}"
-              else
-                echo "${{ env.CURSEFORGE_FABRIC_DEPENDENCIES }}"
-              fi
-            else
-              echo "${{ env.CURSEFORGE_FORGE_DEPENDENCIES }}"
-            fi
-            echo -e "\nEOF"
-          } >> $GITHUB_OUTPUT
-          {
-            echo 'MODRINTH<<EOF'
-            if [[ "${{ env.MOD_LOADER }}" == fabric ]]; then
-              echo "${{ env.MODRINTH_FABRIC_DEPENDENCIES }}"
-            else
-              echo "${{ env.MODRINTH_FORGE_DEPENDENCIES }}"
-            fi
-            echo -e "\nEOF"
-          } >> $GITHUB_OUTPUT
-
       - name: CHANGELOGの中身（先頭のみ）取得
         id: changelog
         run: |
@@ -96,14 +71,17 @@ jobs:
 
       - name: Check properties
         run: |
+          echo "NAME" "${{ env.NAME }}"
           echo "MC_VERSION" "${{ env.MC_VERSION }}"
           echo "MOD_LOADER" "${{ env.MOD_LOADER }}"
           echo "RELEASE_VERSION" "${{ env.RELEASE_VERSION }}"
           echo "TAG_NAME" "${{ env.TAG_NAME }}"
           echo "COMMITISH" "${{ env.COMMITISH }}"
           echo "CHANGELOG" "${{ steps.changelog.outputs.CHANGELOG }}"
-          echo "CURSEFORGE_DEPENDENCIES" "${{ steps.dependencies.outputs.CURSEFORGE }}"
-          echo "MODRINTH_DEPENDENCIES" "${{ steps.dependencies.outputs.MODRINTH }}"
+          echo "CURSEFORGE_ID" "${{ env.CURSEFORGE_ID }}"
+          echo "CURSEFORGE_DEPENDENCIES" "${{ env.CURSEFORGE_DEPENDENCIES }}"
+          echo "MODRINTH_ID" "${{ env.MODRINTH_ID }}"
+          echo "MODRINTH_DEPENDENCIES" "${{ env.MODRINTH_DEPENDENCIES }}"
           if [[ "${{ env.MC_VERSION }}" != *"."* ]]; then
             echo 'Invalid MC version "${{ env.MC_VERSION }}", aborting workflow.'
             exit 1
@@ -117,6 +95,22 @@ jobs:
             exit 1
           fi
 
+      - name: Check CurseForge API tokens
+        if: ${{ contains(github.event.inputs.mod_platform, 'CurseForge') }}
+        run: |
+          if [ -z "${{ secrets.CURSEFORGE_TOKEN }}" ]; then
+            echo "CURSEFORGE_TOKEN is not set, aborting workflow."
+            exit 1
+          fi
+
+      - name: Check Modrinth API tokens
+        if: ${{ contains(github.event.inputs.mod_platform, 'Modrinth') }}
+        run: |
+          if [ -z "${{ secrets.MODRINTH_TOKEN }}" ]; then
+            echo "MODRINTH_TOKEN is not set, aborting workflow."
+            exit 1
+          fi
+
       - name: Check if tag already exists
         if: ${{ contains(github.event.inputs.mod_platform, 'Github') }}
         run: |
@@ -125,21 +119,8 @@ jobs:
             exit 1
           fi
 
-      # gradle.propertiesの書き換えはしないかも
-      #      - name: Set version
-      #        run: sed -i "s/modVersion.*=.*/modVersion = ${{ env.RELEASE_VERSION }}/g" gradle.properties
-
-      # 自動コミットはしないかも
-      #      - name: Commit and push gradle.properties
-      #        uses: stefanzweifel/git-auto-commit-action@v5
-      #        with:
-      #          commit_message: "Bump version to v${{ env.RELEASE_VERSION }}"
-      #          commit_options: '--no-verify'
-      #          file_pattern: gradle.properties
-      #          tagging_message: "v${{ env.RELEASE_VERSION }}"
-
       - name: Setup Build
-        uses: ./.github/actions/build_setup
+        uses: KatatsumuriPan/KpansGitHubActions/.github/actions/build_setup@main
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
@@ -153,13 +134,13 @@ jobs:
         with:
           github-tag: "${{ env.TAG_NAME }}"
           github-generate-changelog: false
-          github-commitish: "${{ env.COMMITISH }}"  # タグを生成するブランチ
+          github-commitish: "${{ env.COMMITISH }}"  # タグを生成するブランチorコミット
           github-token: "${{ secrets.GITHUB_TOKEN }}"
           modrinth-id: "${{ env.MODRINTH_ID }}"
-          modrinth-token: "${{ secrets.MODRINTH_API_KEY }}"
+          modrinth-token: "${{ secrets.MODRINTH_TOKEN }}"
           modrinth-dependencies: "${{ steps.dependencies.outputs.MODRINTH }}"
           curseforge-id: "${{ env.CURSEFORGE_ID }}"
-          curseforge-token: "${{ secrets.CURSEFORGE_API_KEY }}"
+          curseforge-token: "${{ secrets.CURSEFORGE_TOKEN }}"
           curseforge-dependencies: "${{ steps.dependencies.outputs.CURSEFORGE }}"
           files: |
             build/libs/!(*-@(dev|sources|javadoc)).jar
@@ -178,7 +159,7 @@ jobs:
         if: ${{ github.event.inputs.mod_platform == 'CurseForge' }}
         with:
           curseforge-id: "${{ env.CURSEFORGE_ID }}"
-          curseforge-token: "${{ secrets.CURSEFORGE_API_KEY }}"
+          curseforge-token: "${{ secrets.CURSEFORGE_TOKEN }}"
           curseforge-dependencies: "${{ steps.dependencies.outputs.CURSEFORGE }}"
           files: |
             build/libs/!(*-@(dev|sources|javadoc)).jar
@@ -197,7 +178,7 @@ jobs:
         if: ${{ github.event.inputs.mod_platform == 'Modrinth' }}
         with:
           modrinth-id: "${{ env.MODRINTH_ID }}"
-          modrinth-token: "${{ secrets.MODRINTH_API_KEY }}"
+          modrinth-token: "${{ secrets.MODRINTH_TOKEN }}"
           modrinth-dependencies: "${{ steps.dependencies.outputs.MODRINTH }}"
           files: |
             build/libs/!(*-@(dev|sources|javadoc)).jar
@@ -217,7 +198,7 @@ jobs:
         with:
           github-tag: "${{ env.TAG_NAME }}"
           github-generate-changelog: false
-          github-commitish: "${{ env.COMMITISH }}"  # タグを生成するブランチ
+          github-commitish: "${{ env.COMMITISH }}"  # タグを生成するブランチorコミット
           github-token: "${{ secrets.GITHUB_TOKEN }}"
           files: |
             build/libs/!(*-@(dev|sources|javadoc)).jar
