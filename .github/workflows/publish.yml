@@ -27,7 +27,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0 # これが無いと正しくタグの存在を判定できない模様
-          token: ${{ secrets.PAT_GITHUB }}
 
       - name: 環境変数の読み込み
         run: |
