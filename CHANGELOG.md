@@ -1,5 +1,9 @@
 # Change Log
 
+### [1.12.2-forge-1.1.0](https://github.com/KatatsumuriPan/BetterLineBreak/releases/tag/1.12.2-forge-1.1.0) - 2024-02-10
+
+- Cache budouX model.
+
 ### [1.12.2-forge-1.0.3](https://github.com/KatatsumuriPan/BetterLineBreak/releases/tag/1.12.2-forge-1.0.3) - 2024-01-31
 
 - Fix not break between non-ASCII and ASCII in PHRASE mode.
