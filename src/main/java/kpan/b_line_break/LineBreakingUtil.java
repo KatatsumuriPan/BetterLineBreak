@@ -187,7 +187,7 @@ public class LineBreakingUtil {
     }
 
     public static @Nullable Parser getParser() {
-        switch (ConfigHolder.lineBreakAlgorithm) {
+        switch (ConfigHolder.client.lineBreakAlgorithm) {
             case VANILLA:
             case NON_ASCII:
                 return null;
@@ -206,7 +206,7 @@ public class LineBreakingUtil {
                         return null;
                 }
             default:
-                throw new IllegalStateException("Unexpected value: " + ConfigHolder.lineBreakAlgorithm);
+                throw new IllegalStateException("Unexpected value: " + ConfigHolder.client.lineBreakAlgorithm);
         }
     }
 
@@ -223,7 +223,7 @@ public class LineBreakingUtil {
     }
 
     public static boolean canBreak(char prevChar, char c, int index, Set<Integer> breakIndices) {
-        switch (ConfigHolder.lineBreakAlgorithm) {
+        switch (ConfigHolder.client.lineBreakAlgorithm) {
             case VANILLA:
                 return false;
             case NON_ASCII:
@@ -282,6 +282,7 @@ public class LineBreakingUtil {
                 throw new AssertionError();
         }
     }
+
     private static boolean isNormalAsciiLetter(char c) {
         if (c <= ' ')
             return false;
@@ -306,6 +307,7 @@ public class LineBreakingUtil {
                 return c < 0x7F;
         }
     }
+
     private static boolean isEndBracket(char c) {
         switch (c) {
             case ','://0x002C
@@ -334,6 +336,7 @@ public class LineBreakingUtil {
                 return false;
         }
     }
+
     private static boolean isJapaneseNoBreakChar(char c) {
         switch (c) {
             case '々': //0x3005
@@ -386,6 +389,7 @@ public class LineBreakingUtil {
                 return false;
         }
     }
+
     private static boolean isDelimiters(char c) {
         switch (c) {
             case '!': //0x0021
@@ -401,6 +405,7 @@ public class LineBreakingUtil {
                 return false;
         }
     }
+
     private static boolean isMiddleSentencePunctuation(char c) {
         switch (c) {
             case ':': //0x003A
@@ -413,6 +418,7 @@ public class LineBreakingUtil {
                 return false;
         }
     }
+
     private static boolean isSentenceEndingPunctuation(char c) {
         switch (c) {
             case '.': //0x002E
@@ -423,6 +429,7 @@ public class LineBreakingUtil {
                 return false;
         }
     }
+
     private static boolean isStartBracket(char c) {
         switch (c) {
             case '(': //0x0028
