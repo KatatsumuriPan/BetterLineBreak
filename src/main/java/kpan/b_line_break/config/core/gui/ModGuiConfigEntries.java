@@ -24,7 +24,6 @@ import org.lwjgl.input.Keyboard;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static cpw.mods.fml.client.config.GuiUtils.RESET_CHAR;
@@ -65,7 +64,7 @@ public class ModGuiConfigEntries extends GuiListExtended {
     public int scrollBarX;
 
     public ModGuiConfigEntries(ModGuiConfig parent, Minecraft mc) {
-        super(mc, parent.width, parent.height, parent.titleLine2 != null ? 33 : 23, parent.height - 32, 20);
+        super(mc, parent.width, parent.height, parent.path.isEmpty() ? 23 : 33, parent.height - 32, 20);
         owningScreen = parent;
         setShowSelectionBox(false);
         this.mc = mc;
@@ -75,14 +74,7 @@ public class ModGuiConfigEntries extends GuiListExtended {
             if (element != null) {
                 if (element instanceof AbstractConfigProperty property && element.showInGui()) // as opposed to being a child category entry
                 {
-                    int length;
-
-                    // protects against language keys that are not defined in the .lang file
-                    if (!I18n.format(property.getLanguageKey()).equals(property.getLanguageKey()))
-                        length = mc.fontRenderer.getStringWidth(I18n.format(property.getLanguageKey()));
-                    else
-                        length = mc.fontRenderer.getStringWidth(property.getName());
-
+                    int length = mc.fontRenderer.getStringWidth(I18n.format(property.getNameTranslationKey(owningScreen.path)));
                     if (length > maxLabelTextWidth)
                         maxLabelTextWidth = length;
                 }
@@ -113,7 +105,7 @@ public class ModGuiConfigEntries extends GuiListExtended {
                 maxLabelTextWidth = entry.getLabelWidth();
         }
 
-        top = owningScreen.titleLine2 != null ? 33 : 23;
+        top = owningScreen.path.isEmpty() ? 23 : 33;
         bottom = owningScreen.height - 32;
         left = 0;
         right = width;
@@ -291,6 +283,9 @@ public class ModGuiConfigEntries extends GuiListExtended {
             currentValue = beforeValue;
             btnValue.enabled = enabled();
             updateValueButtonText();
+            for (String line : property.getAdditionalComment().split("\n")) {
+                toolTip.add(ChatFormatting.YELLOW + line);
+            }
         }
 
         @Override
@@ -405,10 +400,12 @@ public class ModGuiConfigEntries extends GuiListExtended {
     public static class EnumEntry extends CycleValueEntry {
         private final Class<? extends Enum<?>> enumClass;
 
-        @SuppressWarnings("unchecked")
         public EnumEntry(ModGuiConfig owningScreen, ModGuiConfigEntries owningEntryList, ConfigPropertyEnum property, Enum<?> current, Enum<?> defaultValue) {
             super(owningScreen, owningEntryList, property, Arrays.stream(current.getClass().getEnumConstants()).map(Enum::toString).toArray(String[]::new), ArrayUtils.indexOf(current.getClass().getEnumConstants(), current), ArrayUtils.indexOf(current.getClass().getEnumConstants(), defaultValue));
             enumClass = (Class<? extends Enum<?>>) current.getClass();
+            for (String line : property.getAdditionalComment().split("\n")) {
+                toolTip.add(ChatFormatting.YELLOW + line);
+            }
         }
 
         @Override
@@ -715,6 +712,7 @@ public class ModGuiConfigEntries extends GuiListExtended {
             btnValue.enabled = enabled();
             btnValue.drawButton(mc, mouseX, mouseY);
         }
+
         /**
          * Returns true if the mouse has been pressed on this control
          * Called when the mouse is clicked within this entry. Returning true means that something within this entry was
@@ -741,13 +739,16 @@ public class ModGuiConfigEntries extends GuiListExtended {
         }
 
         @Override
-        public void keyTyped(char eventChar, int eventKey) { }
+        public void keyTyped(char eventChar, int eventKey) {
+        }
 
         @Override
-        public void updateCursorCounter() { }
+        public void updateCursorCounter() {
+        }
 
         @Override
-        public void mouseClicked(int x, int y, int mouseEvent) { }
+        public void mouseClicked(int x, int y, int mouseEvent) {
+        }
     }
 
     public static class IntegerEntry extends InputEntry {
@@ -756,6 +757,9 @@ public class ModGuiConfigEntries extends GuiListExtended {
         public IntegerEntry(ModGuiConfig owningScreen, ModGuiConfigEntries owningEntryList, ConfigPropertyInt property) {
             super(owningScreen, owningEntryList, property);
             beforeValueInt = property.getValue();
+            for (String line : property.getAdditionalComment().split("\n")) {
+                toolTip.add(ChatFormatting.YELLOW + line);
+            }
         }
 
         @Override
@@ -764,9 +768,9 @@ public class ModGuiConfigEntries extends GuiListExtended {
                 String validChars = "0123456789";
                 String before = textFieldValue.getText();
                 if (validChars.contains(String.valueOf(eventChar))
-                    || (!before.startsWith("-") && textFieldValue.getCursorPosition() == 0 && eventChar == '-')
-                    || eventKey == Keyboard.KEY_BACK || eventKey == Keyboard.KEY_DELETE
-                    || eventKey == Keyboard.KEY_LEFT || eventKey == Keyboard.KEY_RIGHT || eventKey == Keyboard.KEY_HOME || eventKey == Keyboard.KEY_END)
+                        || (!before.startsWith("-") && textFieldValue.getCursorPosition() == 0 && eventChar == '-')
+                        || eventKey == Keyboard.KEY_BACK || eventKey == Keyboard.KEY_DELETE
+                        || eventKey == Keyboard.KEY_LEFT || eventKey == Keyboard.KEY_RIGHT || eventKey == Keyboard.KEY_HOME || eventKey == Keyboard.KEY_END)
                     textFieldValue.textboxKeyTyped((enabled() ? eventChar : Keyboard.CHAR_NONE), eventKey);
                 isValidValue = property.isValidValue(textFieldValue.getText().trim());
             }
@@ -788,6 +792,9 @@ public class ModGuiConfigEntries extends GuiListExtended {
         public LongEntry(ModGuiConfig owningScreen, ModGuiConfigEntries owningEntryList, ConfigPropertyLong property) {
             super(owningScreen, owningEntryList, property);
             beforeValueInt = property.getValue();
+            for (String line : property.getAdditionalComment().split("\n")) {
+                toolTip.add(ChatFormatting.YELLOW + line);
+            }
         }
 
         @Override
@@ -796,9 +803,9 @@ public class ModGuiConfigEntries extends GuiListExtended {
                 String validChars = "0123456789";
                 String before = textFieldValue.getText();
                 if (validChars.contains(String.valueOf(eventChar))
-                    || (!before.startsWith("-") && textFieldValue.getCursorPosition() == 0 && eventChar == '-')
-                    || eventKey == Keyboard.KEY_BACK || eventKey == Keyboard.KEY_DELETE
-                    || eventKey == Keyboard.KEY_LEFT || eventKey == Keyboard.KEY_RIGHT || eventKey == Keyboard.KEY_HOME || eventKey == Keyboard.KEY_END)
+                        || (!before.startsWith("-") && textFieldValue.getCursorPosition() == 0 && eventChar == '-')
+                        || eventKey == Keyboard.KEY_BACK || eventKey == Keyboard.KEY_DELETE
+                        || eventKey == Keyboard.KEY_LEFT || eventKey == Keyboard.KEY_RIGHT || eventKey == Keyboard.KEY_HOME || eventKey == Keyboard.KEY_END)
                     textFieldValue.textboxKeyTyped((enabled() ? eventChar : Keyboard.CHAR_NONE), eventKey);
                 isValidValue = property.isValidValue(textFieldValue.getText().trim());
             }
@@ -820,6 +827,9 @@ public class ModGuiConfigEntries extends GuiListExtended {
         public FloatEntry(ModGuiConfig owningScreen, ModGuiConfigEntries owningEntryList, ConfigPropertyFloat property) {
             super(owningScreen, owningEntryList, property);
             beforeValue = property.getValue();
+            for (String line : property.getAdditionalComment().split("\n")) {
+                toolTip.add(ChatFormatting.YELLOW + line);
+            }
         }
 
         @Override
@@ -828,10 +838,10 @@ public class ModGuiConfigEntries extends GuiListExtended {
                 String validChars = "0123456789";
                 String before = textFieldValue.getText();
                 if (validChars.contains(String.valueOf(eventChar)) ||
-                    (!before.startsWith("-") && textFieldValue.getCursorPosition() == 0 && eventChar == '-')
-                    || (!before.contains(".") && eventChar == '.')
-                    || eventKey == Keyboard.KEY_BACK || eventKey == Keyboard.KEY_DELETE || eventKey == Keyboard.KEY_LEFT || eventKey == Keyboard.KEY_RIGHT
-                    || eventKey == Keyboard.KEY_HOME || eventKey == Keyboard.KEY_END)
+                        (!before.startsWith("-") && textFieldValue.getCursorPosition() == 0 && eventChar == '-')
+                        || (!before.contains(".") && eventChar == '.')
+                        || eventKey == Keyboard.KEY_BACK || eventKey == Keyboard.KEY_DELETE || eventKey == Keyboard.KEY_LEFT || eventKey == Keyboard.KEY_RIGHT
+                        || eventKey == Keyboard.KEY_HOME || eventKey == Keyboard.KEY_END)
                     textFieldValue.textboxKeyTyped((enabled() ? eventChar : Keyboard.CHAR_NONE), eventKey);
 
                 if (!textFieldValue.getText().trim().isEmpty() && !textFieldValue.getText().trim().equals("-")) {
@@ -858,6 +868,9 @@ public class ModGuiConfigEntries extends GuiListExtended {
         public DoubleEntry(ModGuiConfig owningScreen, ModGuiConfigEntries owningEntryList, ConfigPropertyDouble property) {
             super(owningScreen, owningEntryList, property);
             beforeValue = property.getValue();
+            for (String line : property.getAdditionalComment().split("\n")) {
+                toolTip.add(ChatFormatting.YELLOW + line);
+            }
         }
 
         @Override
@@ -866,10 +879,10 @@ public class ModGuiConfigEntries extends GuiListExtended {
                 String validChars = "0123456789";
                 String before = textFieldValue.getText();
                 if (validChars.contains(String.valueOf(eventChar)) ||
-                    (!before.startsWith("-") && textFieldValue.getCursorPosition() == 0 && eventChar == '-')
-                    || (!before.contains(".") && eventChar == '.')
-                    || eventKey == Keyboard.KEY_BACK || eventKey == Keyboard.KEY_DELETE || eventKey == Keyboard.KEY_LEFT || eventKey == Keyboard.KEY_RIGHT
-                    || eventKey == Keyboard.KEY_HOME || eventKey == Keyboard.KEY_END)
+                        (!before.startsWith("-") && textFieldValue.getCursorPosition() == 0 && eventChar == '-')
+                        || (!before.contains(".") && eventChar == '.')
+                        || eventKey == Keyboard.KEY_BACK || eventKey == Keyboard.KEY_DELETE || eventKey == Keyboard.KEY_LEFT || eventKey == Keyboard.KEY_RIGHT
+                        || eventKey == Keyboard.KEY_HOME || eventKey == Keyboard.KEY_END)
                     textFieldValue.textboxKeyTyped((enabled() ? eventChar : Keyboard.CHAR_NONE), eventKey);
 
                 if (!textFieldValue.getText().trim().isEmpty() && !textFieldValue.getText().trim().equals("-")) {
@@ -926,6 +939,7 @@ public class ModGuiConfigEntries extends GuiListExtended {
             textFieldValue.setEnabled(enabled());
             textFieldValue.drawTextBox();
         }
+
         @Override
         public void keyTyped(char eventChar, int eventKey) {
             if (enabled() || eventKey == Keyboard.KEY_LEFT || eventKey == Keyboard.KEY_RIGHT || eventKey == Keyboard.KEY_HOME || eventKey == Keyboard.KEY_END) {
@@ -984,7 +998,7 @@ public class ModGuiConfigEntries extends GuiListExtended {
         protected final GuiButtonExt btnSelectCategory;
 
         public CategoryEntry(ModGuiConfig owningScreen, ModGuiConfigEntries owningEntryList, ModConfigCategory category) {
-            super(owningScreen, owningEntryList, getTranslatedName(category));
+            super(owningScreen, owningEntryList, getTranslatedName(category, owningScreen.path));
             this.category = category;
 
             childScreen = buildChildScreen();
@@ -994,13 +1008,18 @@ public class ModGuiConfigEntries extends GuiListExtended {
 
             drawLabel = false;
 
-            String comment = I18n.format(category.getLanguageKey() + ".tooltip").replace("\\n", "\n");
-            if (!comment.equals(category.getLanguageKey() + ".tooltip"))
-                Collections.addAll(toolTip, (ChatFormatting.GREEN + name + "\n" + ChatFormatting.YELLOW + comment).split("\n"));
-            else if (category.getComment() != null && !category.getComment().trim().isEmpty())
-                Collections.addAll(toolTip, (ChatFormatting.GREEN + name + "\n" + ChatFormatting.YELLOW + category.getComment()).split("\n"));
-            else
-                Collections.addAll(toolTip, (ChatFormatting.GREEN + name + "\n" + ChatFormatting.RED + "No tooltip defined.").split("\n"));
+            for (String line : name.split("\n")) {
+                toolTip.add(ChatFormatting.GREEN + line);
+            }
+
+            String comment = I18n.format(category.getCommentTranslationKey(path)).replace("\\n", "\n");
+            if (!comment.equals(category.getCommentTranslationKey(path))) {
+                for (String line : comment.split("\n")) {
+                    toolTip.add(ChatFormatting.YELLOW + line);
+                }
+            } else {
+                toolTip.add(ChatFormatting.RED + "No tooltip defined.");
+            }
 
             if (category.requiresWorldRestart() || owningScreen.allRequireMcRestart)
                 toolTip.add(ChatFormatting.RED + "[" + I18n.format("fml.configgui.gameRestartTitle") + "]");
@@ -1011,9 +1030,9 @@ public class ModGuiConfigEntries extends GuiListExtended {
          */
         protected GuiScreen buildChildScreen() {
             return new ModGuiConfig(owningScreen, category.getOrderedElements(), owningScreen.configID,
-                owningScreen.allRequireWorldRestart || category.requiresWorldRestart(),
-                owningScreen.allRequireMcRestart || category.requiresMcRestart(), owningScreen.title,
-                ((owningScreen.titleLine2 == null ? "" : owningScreen.titleLine2) + " > " + name));
+                    owningScreen.allRequireWorldRestart || category.requiresWorldRestart(),
+                    owningScreen.allRequireMcRestart || category.requiresMcRestart(), owningScreen.title,
+                    (owningScreen.path + (owningScreen.path.isEmpty() ? "" : ".") + category.getId()));
         }
 
         @Override
@@ -1025,6 +1044,7 @@ public class ModGuiConfigEntries extends GuiListExtended {
 
             super.drawEntry(slotIndex, x, y, listWidth, slotHeight, tessellator, mouseX, mouseY, isSelected);
         }
+
         @Override
         public void drawToolTip(int mouseX, int mouseY) {
             boolean canHover = mouseY < owningEntryList.bottom && mouseY > owningEntryList.top;
@@ -1072,13 +1092,16 @@ public class ModGuiConfigEntries extends GuiListExtended {
         }
 
         @Override
-        public void keyTyped(char eventChar, int eventKey) { }
+        public void keyTyped(char eventChar, int eventKey) {
+        }
 
         @Override
-        public void updateCursorCounter() { }
+        public void updateCursorCounter() {
+        }
 
         @Override
-        public void mouseClicked(int x, int y, int mouseEvent) { }
+        public void mouseClicked(int x, int y, int mouseEvent) {
+        }
 
         @Override
         public boolean saveConfigElement() {
@@ -1127,21 +1150,23 @@ public class ModGuiConfigEntries extends GuiListExtended {
         public boolean requiresWorldRestart() {
             return category.requiresWorldRestart();
         }
+
         @Override
         public boolean requiresMcRestart() {
             return category.requiresMcRestart();
         }
+
         @Override
         public String getName() {
-            return category.getName();
+            return category.getId();
         }
 
-        private static String getTranslatedName(ModConfigCategory category) {
-            String trans = I18n.format(category.getLanguageKey());
-            if (!trans.equals(category.getLanguageKey()))
+        private static String getTranslatedName(ModConfigCategory category, String path) {
+            String trans = I18n.format(category.getNameTranslationKey(path));
+            if (!trans.equals(category.getNameTranslationKey(path)))
                 return trans;
             else
-                return category.getName();
+                return category.getId();
         }
     }
 
@@ -1149,18 +1174,21 @@ public class ModGuiConfigEntries extends GuiListExtended {
         protected final AbstractConfigProperty property;
 
         public PropertyEntry(ModGuiConfig owningScreen, ModGuiConfigEntries owningEntryList, AbstractConfigProperty property) {
-            super(owningScreen, owningEntryList, getTranslatedName(property));
+            super(owningScreen, owningEntryList, I18n.format(property.getNameTranslationKey(owningScreen.path)));
             this.property = property;
 
-            String comment = I18n.format(property.getLanguageKey() + ".tooltip").replace("\\n", "\n");
-            if (!comment.equals(property.getLanguageKey() + ".tooltip"))
-                Collections.addAll(toolTip, (ChatFormatting.GREEN + name + "\n" + ChatFormatting.YELLOW + comment).split("\n"));
-            else if (property.getComment() != null && !property.getComment().trim().isEmpty())
-                Collections.addAll(toolTip, (ChatFormatting.GREEN + name + "\n" + ChatFormatting.YELLOW + property.getComment()).split("\n"));
-            else
-                Collections.addAll(toolTip, (ChatFormatting.GREEN + name + "\n" + ChatFormatting.RED + "No tooltip defined.").split("\n"));
+            for (String line : name.split("\n")) {
+                toolTip.add(ChatFormatting.GREEN + line);
+            }
 
-            //TODO:range
+            String comment = I18n.format(property.getCommentTranslationKey(path)).replace("\\n", "\n");
+            if (!comment.equals(property.getCommentTranslationKey(path))) {
+                for (String line : comment.split("\n")) {
+                    toolTip.add(ChatFormatting.YELLOW + line);
+                }
+            } else {
+                toolTip.add(ChatFormatting.RED + "No tooltip defined.");
+            }
 
             if (property.requiresWorldRestart() || owningScreen.allRequireMcRestart)
                 toolTip.add(ChatFormatting.RED + "[" + I18n.format("fml.configgui.gameRestartTitle") + "]");
@@ -1168,7 +1196,7 @@ public class ModGuiConfigEntries extends GuiListExtended {
 
         @Override
         public String getName() {
-            return property.getName();
+            return I18n.format(property.getNameTranslationKey(path));
         }
 
         @Override
@@ -1176,18 +1204,11 @@ public class ModGuiConfigEntries extends GuiListExtended {
             return owningScreen.isWorldRunning ? !owningScreen.allRequireWorldRestart && !property.requiresWorldRestart() : true;
         }
 
-        private static String getTranslatedName(AbstractConfigProperty property) {
-            String trans = I18n.format(property.getLanguageKey());
-            if (!trans.equals(property.getLanguageKey()))
-                return trans;
-            else
-                return property.getName();
-        }
-
         @Override
         public boolean requiresMcRestart() {
             return property.requiresMcRestart();
         }
+
         @Override
         public boolean requiresWorldRestart() {
             return property.requiresWorldRestart();
@@ -1199,6 +1220,7 @@ public class ModGuiConfigEntries extends GuiListExtended {
         protected final ModGuiConfigEntries owningEntryList;
         protected final Minecraft mc;
         protected final String name;
+        protected final String path;
         protected final GuiButtonExt btnUndoChanges;
         protected final GuiButtonExt btnDefault;
         protected List<String> toolTip;
@@ -1215,6 +1237,7 @@ public class ModGuiConfigEntries extends GuiListExtended {
             this.owningEntryList = owningEntryList;
             mc = Minecraft.getMinecraft();
             this.name = name;
+            path = owningScreen.path;
             btnUndoChanges = new GuiButtonExt(0, 0, 0, 18, 18, UNDO_CHAR);
             btnDefault = new GuiButtonExt(0, 0, 0, 18, 18, RESET_CHAR);
 
@@ -1235,13 +1258,13 @@ public class ModGuiConfigEntries extends GuiListExtended {
 
             if (drawLabel) {
                 String label = (!isValidValue ? ChatFormatting.RED.toString() :
-                    (isChanged ? ChatFormatting.WHITE.toString() : ChatFormatting.GRAY.toString()))
-                    + (isChanged ? ChatFormatting.ITALIC.toString() : "") + name;
+                        (isChanged ? ChatFormatting.WHITE.toString() : ChatFormatting.GRAY.toString()))
+                        + (isChanged ? ChatFormatting.ITALIC.toString() : "") + name;
                 mc.fontRenderer.drawString(
-                    label,
-                    owningEntryList.labelX,
-                    y + slotHeight / 2 - mc.fontRenderer.FONT_HEIGHT / 2,
-                    16777215);
+                        label,
+                        owningEntryList.labelX,
+                        y + slotHeight / 2 - mc.fontRenderer.FONT_HEIGHT / 2,
+                        16777215);
             }
 
             btnUndoChanges.xPosition = owningEntryList.scrollBarX - 44;
@@ -1255,10 +1278,11 @@ public class ModGuiConfigEntries extends GuiListExtended {
             btnDefault.drawButton(mc, mouseX, mouseY);
 
             if (tooltipHoverChecker == null)
-                tooltipHoverChecker = new HoverChecker(y, y + slotHeight, x, owningEntryList.controlX - 8, 800);
+                tooltipHoverChecker = new HoverChecker(y, y + slotHeight, x, owningEntryList.resetX - 8, 800);
             else
-                tooltipHoverChecker.updateBounds(y, y + slotHeight, x, owningEntryList.controlX - 8);
+                tooltipHoverChecker.updateBounds(y, y + slotHeight, x, owningEntryList.resetX - 8);
         }
+
         @Override
         public void drawToolTip(int mouseX, int mouseY) {
             boolean canHover = mouseY < owningEntryList.bottom && mouseY > owningEntryList.top;
@@ -1311,13 +1335,15 @@ public class ModGuiConfigEntries extends GuiListExtended {
         }
 
         @Override
-        public void onGuiClosed() { }
+        public void onGuiClosed() {
+        }
 
     }
 
     public interface IGuiConfigEntry extends IGuiListEntry {
 
         boolean requiresWorldRestart();
+
         boolean requiresMcRestart();
 
         /**

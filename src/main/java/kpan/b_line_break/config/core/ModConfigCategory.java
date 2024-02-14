@@ -4,6 +4,7 @@ import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import kpan.b_line_break.ModReference;
 import kpan.b_line_break.config.core.gui.ModGuiConfig;
 import kpan.b_line_break.config.core.gui.ModGuiConfigEntries;
 import kpan.b_line_break.config.core.gui.ModGuiConfigEntries.CategoryEntry;
@@ -16,6 +17,7 @@ import kpan.b_line_break.config.core.properties.ConfigPropertyFloat;
 import kpan.b_line_break.config.core.properties.ConfigPropertyInt;
 import kpan.b_line_break.config.core.properties.ConfigPropertyLong;
 import kpan.b_line_break.config.core.properties.ConfigPropertyString;
+import net.minecraft.client.resources.I18n;
 import net.minecraftforge.common.config.Configuration;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
@@ -31,59 +33,69 @@ import java.util.TreeMap;
 public class ModConfigCategory implements IConfigElement {
     private static final String INDENT = "    ";
     public static final CharMatcher allowedProperties = CharMatcher.forPredicate(ModConfigCategory::isValidChar);
-    private final String name;
+    private final String id;
     public final boolean isRoot;
     private final ModConfigurationFile configuration;
-    private String comment = "";
     private int order = 0;
     private boolean showInGUI = true;
     private final Map<String, ModConfigCategory> children = new TreeMap<>();
-    private final Map<String, AbstractConfigProperty> name2PropertyMap = new TreeMap<>();
+    private final Map<String, AbstractConfigProperty> id2PropertyMap = new TreeMap<>();
 
-    public ModConfigCategory(String name, boolean isRoot, ModConfigurationFile configuration) {
-        this.name = name;
+    public ModConfigCategory(String id, boolean isRoot, ModConfigurationFile configuration) {
+        this.id = id;
         this.isRoot = isRoot;
         this.configuration = configuration;
     }
 
-    public String getName() {
-        return name;
-    }
-    public String getComment() {
-        return comment;
+    public String getId() {
+        return id;
     }
 
-    public void setComment(String comment) {
-        this.comment = comment;
+    public String getNameTranslationKey(String path) {
+        if (path.isEmpty())
+            return ModReference.MODID + ".config." + getId();
+        else
+            return ModReference.MODID + ".config." + path + "." + getId();
     }
+
+    public String getCommentTranslationKey(String path) {
+        if (path.isEmpty())
+            return ModReference.MODID + ".config." + getId() + ".tooltip";
+        else
+            return ModReference.MODID + ".config." + path + "." + getId() + ".tooltip";
+    }
+
     public void clear() {
         children.clear();
-        name2PropertyMap.clear();
-        comment = "";
+        id2PropertyMap.clear();
     }
-    public void put(String name, AbstractConfigProperty property) {
-        name2PropertyMap.put(name, property);
+
+    public void put(String id, AbstractConfigProperty property) {
+        id2PropertyMap.put(id, property);
     }
+
     @Nullable
-    public AbstractConfigProperty get(String name) {
-        return name2PropertyMap.get(name);
+    public AbstractConfigProperty get(String id) {
+        return id2PropertyMap.get(id);
     }
 
     public List<IConfigElement> getOrderedElements() {
-        List<IConfigElement> list = new ArrayList<>(children.size() + name2PropertyMap.size());
+        List<IConfigElement> list = new ArrayList<>(children.size() + id2PropertyMap.size());
         list.addAll(children.values());
-        list.addAll(name2PropertyMap.values());
+        list.addAll(id2PropertyMap.values());
         list.sort(Comparator.comparingInt(IConfigElement::getOrder));
         return list;
     }
 
     @Override
-    public void write(BufferedWriter out, int indent) throws IOException {
+    public void write(BufferedWriter out, int indent, String path) throws IOException {
         String pad = getIndent(indent);
 
-        if (comment != null && !comment.isEmpty()) {
+        String commentKey = getCommentTranslationKey(path);
+        String comment = I18n.format(commentKey);
+        if (!comment.equals(commentKey)) {
             writeLine(out, pad, Configuration.COMMENT_SEPARATOR);
-            writeLine(out, pad, "# ", name);
+            writeLine(out, pad, "# ", id);
             writeLine(out, pad, "#--------------------------------------------------------------------------------------------------------#");
             Splitter splitter = Splitter.onPattern("\r?\n");
 
@@ -95,16 +107,23 @@ public class ModConfigCategory implements IConfigElement {
         }
 
         if (!isRoot) {
-            String displayName = name;
-            if (!allowedProperties.matchesAllOf(name)) {
-                displayName = '"' + name + '"';
+            String id = this.id;
+            if (!allowedProperties.matchesAllOf(id)) {
+                id = '"' + id + '"';
             }
-            writeLine(out, pad, displayName, " {");
+            writeLine(out, pad, id, " {");
         }
 
         out.newLine();
         for (IConfigElement element : getOrderedElements()) {
-            element.write(out, indent + 1);
+            String p;
+            if (isRoot)
+                p = "";
+            else if (path.isEmpty())
+                p = getId();
+            else
+                p = path + "." + getId();
+            element.write(out, indent + 1, p);
             out.write(Configuration.NEW_LINE);
         }
 
@@ -122,161 +141,186 @@ public class ModConfigCategory implements IConfigElement {
         ModConfigCategory category = children.get(name);
         if (category == null) {
             category = new ModConfigCategory(name, false, configuration);
-            children.put(category.name, category);
+            children.put(category.id, category);
         }
         return category;
     }
+
     @Nullable
     public ModConfigCategory tryGetCategory(String name) {
         return children.get(name);
     }
-    public void create(String name, boolean defaultValue, String comment, int order) {
-        if (get(name) != null)
-            throw new IllegalStateException("property named to \"" + name + "\" already exists!");
-        ConfigPropertyBool property = new ConfigPropertyBool(name, defaultValue, comment, order);
-        put(name, property);
+
+    public void create(String id, boolean defaultValue, int order) {
+        if (get(id) != null)
+            throw new IllegalStateException("property named to \"" + id + "\" already exists!");
+        ConfigPropertyBool property = new ConfigPropertyBool(id, defaultValue, order);
+        put(id, property);
     }
-    public void create(String name, int defaultValue, int minValue, int maxValue, String comment, int order) {
-        if (get(name) != null)
-            throw new IllegalStateException("property named to \"" + name + "\" already exists!");
-        ConfigPropertyInt property = new ConfigPropertyInt(name, defaultValue, minValue, maxValue, comment, order);
-        put(name, property);
+
+    public void create(String id, int defaultValue, int minValue, int maxValue, int order) {
+        if (get(id) != null)
+            throw new IllegalStateException("property named to \"" + id + "\" already exists!");
+        ConfigPropertyInt property = new ConfigPropertyInt(id, defaultValue, minValue, maxValue, order);
+        put(id, property);
     }
-    public void create(String name, long defaultValue, long minValue, long maxValue, String comment, int order) {
-        if (get(name) != null)
-            throw new IllegalStateException("property named to \"" + name + "\" already exists!");
-        ConfigPropertyLong property = new ConfigPropertyLong(name, defaultValue, minValue, maxValue, comment, order);
-        put(name, property);
+
+    public void create(String id, long defaultValue, long minValue, long maxValue, int order) {
+        if (get(id) != null)
+            throw new IllegalStateException("property named to \"" + id + "\" already exists!");
+        ConfigPropertyLong property = new ConfigPropertyLong(id, defaultValue, minValue, maxValue, order);
+        put(id, property);
     }
-    public void create(String name, float defaultValue, float minValue, float maxValue, String comment, int order) {
-        if (get(name) != null)
-            throw new IllegalStateException("property named to \"" + name + "\" already exists!");
-        ConfigPropertyFloat property = new ConfigPropertyFloat(name, defaultValue, minValue, maxValue, comment, order);
-        put(name, property);
+
+    public void create(String id, float defaultValue, float minValue, float maxValue, int order) {
+        if (get(id) != null)
+            throw new IllegalStateException("property named to \"" + id + "\" already exists!");
+        ConfigPropertyFloat property = new ConfigPropertyFloat(id, defaultValue, minValue, maxValue, order);
+        put(id, property);
     }
-    public void create(String name, double defaultValue, double minValue, double maxValue, String comment, int order) {
-        if (get(name) != null)
-            throw new IllegalStateException("property named to \"" + name + "\" already exists!");
-        ConfigPropertyDouble property = new ConfigPropertyDouble(name, defaultValue, minValue, maxValue, comment, order);
-        put(name, property);
+
+    public void create(String id, double defaultValue, double minValue, double maxValue, int order) {
+        if (get(id) != null)
+            throw new IllegalStateException("property named to \"" + id + "\" already exists!");
+        ConfigPropertyDouble property = new ConfigPropertyDouble(id, defaultValue, minValue, maxValue, order);
+        put(id, property);
     }
-    public void create(String name, String defaultValue, String comment, int order) {
-        if (get(name) != null)
-            throw new IllegalStateException("property named to \"" + name + "\" already exists!");
-        ConfigPropertyString property = new ConfigPropertyString(name, defaultValue, comment, order);
-        put(name, property);
+
+    public void create(String id, String defaultValue, int order) {
+        if (get(id) != null)
+            throw new IllegalStateException("property named to \"" + id + "\" already exists!");
+        ConfigPropertyString property = new ConfigPropertyString(id, defaultValue, order);
+        put(id, property);
     }
-    public void create(String name, Enum<?> defaultValue, String comment, int order) {
-        if (get(name) != null)
-            throw new IllegalStateException("property named to \"" + name + "\" already exists!");
-        ConfigPropertyEnum property = new ConfigPropertyEnum(name, defaultValue, comment, order);
-        put(name, property);
+
+    public void create(String id, Enum<?> defaultValue, int order) {
+        if (get(id) != null)
+            throw new IllegalStateException("property named to \"" + id + "\" already exists!");
+        ConfigPropertyEnum property = new ConfigPropertyEnum(id, defaultValue, order);
+        put(id, property);
     }
-    public boolean getBool(String name) {
-        AbstractConfigProperty property = get(name);
+
+    public boolean getBool(String id) {
+        AbstractConfigProperty property = get(id);
         if (property instanceof ConfigPropertyBool p)
             return p.getValue();
         else
-            throw new IllegalStateException("Bool property \"" + name + "\" is not found!");
+            throw new IllegalStateException("Bool property \"" + id + "\" is not found!");
     }
-    public int getInt(String name) {
-        AbstractConfigProperty property = get(name);
+
+    public int getInt(String id) {
+        AbstractConfigProperty property = get(id);
         if (property instanceof ConfigPropertyInt p)
             return p.getValue();
         else
-            throw new IllegalStateException("Int property \"" + name + "\" is not found!");
+            throw new IllegalStateException("Int property \"" + id + "\" is not found!");
     }
-    public long getLong(String name) {
-        AbstractConfigProperty property = get(name);
+
+    public long getLong(String id) {
+        AbstractConfigProperty property = get(id);
         if (property instanceof ConfigPropertyLong p)
             return p.getValue();
         else
-            throw new IllegalStateException("Long property \"" + name + "\" is not found!");
+            throw new IllegalStateException("Long property \"" + id + "\" is not found!");
     }
-    public float getFloat(String name) {
-        AbstractConfigProperty property = get(name);
+
+    public float getFloat(String id) {
+        AbstractConfigProperty property = get(id);
         if (property instanceof ConfigPropertyFloat p)
             return p.getValue();
         else
-            throw new IllegalStateException("Float property \"" + name + "\" is not found!");
+            throw new IllegalStateException("Float property \"" + id + "\" is not found!");
     }
-    public double getDouble(String name) {
-        AbstractConfigProperty property = get(name);
+
+    public double getDouble(String id) {
+        AbstractConfigProperty property = get(id);
         if (property instanceof ConfigPropertyDouble p)
             return p.getValue();
         else
-            throw new IllegalStateException("Double property \"" + name + "\" is not found!");
+            throw new IllegalStateException("Double property \"" + id + "\" is not found!");
     }
-    public String getString(String name) {
-        AbstractConfigProperty property = get(name);
+
+    public String getString(String id) {
+        AbstractConfigProperty property = get(id);
         if (property instanceof ConfigPropertyString p)
             return p.getValue();
         else
-            throw new IllegalStateException("String property \"" + name + "\" is not found!");
+            throw new IllegalStateException("String property \"" + id + "\" is not found!");
     }
-    @SuppressWarnings("unchecked")
-    public <E extends Enum<E>> E getEnum(String name) {
-        AbstractConfigProperty property = get(name);
+
+    public <E extends Enum<E>> E getEnum(String id) {
+        AbstractConfigProperty property = get(id);
         if (property instanceof ConfigPropertyEnum p)
             return (E) p.getValue();
         else
-            throw new IllegalStateException("String property \"" + name + "\" is not found!");
+            throw new IllegalStateException("String property \"" + id + "\" is not found!");
     }
-    public void setBool(String name, boolean value) {
-        AbstractConfigProperty property = get(name);
+
+    public void setBool(String id, boolean value) {
+        AbstractConfigProperty property = get(id);
         if (property instanceof ConfigPropertyBool p)
             p.setValue(value);
         else
-            throw new IllegalStateException("Bool property \"" + name + "\" is not found!");
+            throw new IllegalStateException("Bool property \"" + id + "\" is not found!");
     }
-    public void setInt(String name, int value) {
-        AbstractConfigProperty property = get(name);
+
+    public void setInt(String id, int value) {
+        AbstractConfigProperty property = get(id);
         if (property instanceof ConfigPropertyInt p)
             p.setValue(value);
         else
-            throw new IllegalStateException("Int property \"" + name + "\" is not found!");
+            throw new IllegalStateException("Int property \"" + id + "\" is not found!");
     }
-    public void setLong(String name, long value) {
-        AbstractConfigProperty property = get(name);
+
+    public void setLong(String id, long value) {
+        AbstractConfigProperty property = get(id);
         if (property instanceof ConfigPropertyLong p)
             p.setValue(value);
         else
-            throw new IllegalStateException("Long property \"" + name + "\" is not found!");
+            throw new IllegalStateException("Long property \"" + id + "\" is not found!");
     }
-    public void setFloat(String name, float value) {
-        AbstractConfigProperty property = get(name);
+
+    public void setFloat(String id, float value) {
+        AbstractConfigProperty property = get(id);
         if (property instanceof ConfigPropertyFloat p)
             p.setValue(value);
         else
-            throw new IllegalStateException("Float property \"" + name + "\" is not found!");
+            throw new IllegalStateException("Float property \"" + id + "\" is not found!");
     }
-    public void setDouble(String name, double value) {
-        AbstractConfigProperty property = get(name);
+
+    public void setDouble(String id, double value) {
+        AbstractConfigProperty property = get(id);
         if (property instanceof ConfigPropertyDouble p)
             p.setValue(value);
         else
-            throw new IllegalStateException("Double property \"" + name + "\" is not found!");
+            throw new IllegalStateException("Double property \"" + id + "\" is not found!");
     }
-    public void setString(String name, String value) {
-        AbstractConfigProperty property = get(name);
+
+    public void setString(String id, String value) {
+        AbstractConfigProperty property = get(id);
         if (property instanceof ConfigPropertyString p)
             p.setValue(value);
         else
-            throw new IllegalStateException("String property \"" + name + "\" is not found!");
+            throw new IllegalStateException("String property \"" + id + "\" is not found!");
     }
-    public void setEnum(String name, Enum<?> value) {
-        AbstractConfigProperty property = get(name);
+
+    public void setEnum(String id, Enum<?> value) {
+        AbstractConfigProperty property = get(id);
         if (property instanceof ConfigPropertyEnum p)
             p.setValue(value);
         else
-            throw new IllegalStateException("String property \"" + name + "\" is not found!");
+            throw new IllegalStateException("String property \"" + id + "\" is not found!");
     }
 
 
     //TODO:
-    public String getLanguageKey() { return getName(); }
-    public boolean requiresWorldRestart() { return false; }
-    public boolean requiresMcRestart() { return false; }
+    public boolean requiresWorldRestart() {
+        return false;
+    }
+
+    public boolean requiresMcRestart() {
+        return false;
+    }
 
     @Override
     public boolean showInGui() {
@@ -287,12 +331,14 @@ public class ModConfigCategory implements IConfigElement {
     public static String getIndent(int indent) {
         return StringUtils.repeat(INDENT, Math.max(0, indent));
     }
+
     public static void writeLine(BufferedWriter out, String... data) throws IOException {
         for (String datum : data) {
             out.write(datum);
         }
         out.write(Configuration.NEW_LINE);
     }
+
     private static boolean isValidChar(char c) {
         return Character.isLetterOrDigit(c) || c == '_';
     }
@@ -301,6 +347,7 @@ public class ModConfigCategory implements IConfigElement {
     public int getOrder() {
         return order;
     }
+
     public void setOrder(int order) {
         this.order = order;
     }

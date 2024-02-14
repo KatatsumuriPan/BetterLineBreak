@@ -11,7 +11,9 @@ import java.io.IOException;
 
 public interface IConfigElement {
     int getOrder();
-    void write(BufferedWriter out, int indent) throws IOException;
+
+    void write(BufferedWriter out, int indent, String path) throws IOException;
+
     boolean showInGui();
 
     @SideOnly(Side.CLIENT)

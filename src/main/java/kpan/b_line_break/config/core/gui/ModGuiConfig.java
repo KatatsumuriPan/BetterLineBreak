@@ -37,8 +37,7 @@ public class ModGuiConfig extends GuiScreen {
      */
     public final GuiScreen parentScreen;
     public String title = "Config GUI";
-    @Nullable
-    public String titleLine2;
+    public final String path;
     public final List<IConfigElement> configElements;
     public ModGuiConfigEntries entryList;
     protected GuiButtonExt btnDefaultAll;
@@ -60,12 +59,14 @@ public class ModGuiConfig extends GuiScreen {
     protected HoverChecker checkBoxHoverChecker;
 
     public ModGuiConfig(GuiScreen owningScreen) {
-        this(owningScreen, ModMain.defaultConfig.getRootCategory().getOrderedElements(), null, false, false, ModReference.MODNAME, null);
+        this(owningScreen, ModMain.defaultConfig.getRootCategory().getOrderedElements(), null, false, false, ModReference.MODNAME, "");
     }
-    public ModGuiConfig(GuiScreen owningScreen, List<IConfigElement> configElements, @Nullable String configID, boolean allRequireWorldRestart, boolean allRequireMcRestart, String title, @Nullable String title2) {
+
+    public ModGuiConfig(GuiScreen owningScreen, List<IConfigElement> configElements, @Nullable String configID, boolean allRequireWorldRestart, boolean allRequireMcRestart, String title, String path) {
         mc = Minecraft.getMinecraft();
         parentScreen = owningScreen;
         this.configElements = configElements;
+        this.path = path;
         entryList = new ModGuiConfigEntries(this, mc);
         this.allRequireWorldRestart = allRequireWorldRestart || entryList.listEntries.stream().allMatch(IGuiConfigEntry::requiresWorldRestart);
         this.allRequireMcRestart = allRequireMcRestart || entryList.listEntries.stream().allMatch(IGuiConfigEntry::requiresMcRestart);
@@ -73,9 +74,6 @@ public class ModGuiConfig extends GuiScreen {
         isWorldRunning = mc.theWorld != null;
         if (title != null)
             this.title = title;
-        titleLine2 = title2;
-        if (titleLine2 != null && titleLine2.startsWith(" > "))
-            titleLine2 = titleLine2.substring(" > ".length());
     }
 
 
@@ -97,11 +95,11 @@ public class ModGuiConfig extends GuiScreen {
         int buttonWidthHalf = (doneWidth + 5 + undoWidth + 5 + resetWidth + 5 + checkWidth) / 2;
         buttonList.add(new GuiButtonExt(2000, width / 2 - buttonWidthHalf, height - 29, doneWidth, 20, I18n.format("gui.done")));
         buttonList.add(btnDefaultAll = new GuiUnicodeGlyphButton(2001, width / 2 - buttonWidthHalf + doneWidth + 5 + undoWidth + 5,
-            height - 29, resetWidth, 20, " " + I18n.format("fml.configgui.tooltip.resetToDefault"), RESET_CHAR, 2.0F));
+                height - 29, resetWidth, 20, " " + I18n.format("fml.configgui.tooltip.resetToDefault"), RESET_CHAR, 2.0F));
         buttonList.add(btnUndoAll = new GuiUnicodeGlyphButton(2002, width / 2 - buttonWidthHalf + doneWidth + 5,
-            height - 29, undoWidth, 20, " " + I18n.format("fml.configgui.tooltip.undoChanges"), UNDO_CHAR, 2.0F));
+                height - 29, undoWidth, 20, " " + I18n.format("fml.configgui.tooltip.undoChanges"), UNDO_CHAR, 2.0F));
         buttonList.add(chkApplyGlobally = new GuiCheckBox(2003, width / 2 - buttonWidthHalf + doneWidth + 5 + undoWidth + 5 + resetWidth + 5,
-            height - 24, I18n.format("fml.configgui.applyGlobally"), false));
+                height - 24, I18n.format("fml.configgui.applyGlobally"), false));
 
         undoHoverChecker = new HoverChecker(btnUndoAll, 800);
         resetHoverChecker = new HoverChecker(btnDefaultAll, 800);
@@ -116,8 +114,7 @@ public class ModGuiConfig extends GuiScreen {
     public void onGuiClosed() {
         entryList.onGuiClosed();
 
-        if (configID != null && parentScreen instanceof ModGuiConfig) {
-            ModGuiConfig parentGuiConfig = (ModGuiConfig) parentScreen;
+        if (configID != null && parentScreen instanceof ModGuiConfig parentGuiConfig) {
             parentGuiConfig.needsRefresh = true;
             parentGuiConfig.initGui();
         }
@@ -135,7 +132,7 @@ public class ModGuiConfig extends GuiScreen {
             boolean flag = true;
             try {
                 if ((configID != null || parentScreen == null || !(parentScreen instanceof ModGuiConfig))
-                    && (entryList.hasChangedEntry(true))) {
+                        && (entryList.hasChangedEntry(true))) {
                     boolean requiresMcRestart = entryList.saveConfigElements();
 
                     ConfigChangedEvent event = new OnConfigChangedEvent(ModReference.MODID, configID, isWorldRunning, requiresMcRestart);
@@ -148,7 +145,7 @@ public class ModGuiConfig extends GuiScreen {
                     if (requiresMcRestart) {
                         flag = false;
                         mc.displayGuiScreen(new GuiMessageDialog(parentScreen, "fml.configgui.gameRestartTitle",
-                            new ChatComponentText(I18n.format("fml.configgui.gameRestartRequired")), "fml.configgui.confirmRestartMessage"));
+                                new ChatComponentText(I18n.format("fml.configgui.gameRestartRequired")), "fml.configgui.confirmRestartMessage"));
                     }
 
                     if (parentScreen instanceof ModGuiConfig)
@@ -218,7 +215,7 @@ public class ModGuiConfig extends GuiScreen {
         drawDefaultBackground();
         entryList.drawScreen(mouseX, mouseY, partialTicks);
         drawCenteredString(fontRendererObj, title, width / 2, 8, 16777215);
-        String title2 = titleLine2;
+        String title2 = path.replace(".", " > ");
 
         if (title2 != null) {
             int strWidth = mc.fontRenderer.getStringWidth(title2);

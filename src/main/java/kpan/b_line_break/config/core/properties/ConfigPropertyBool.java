@@ -13,8 +13,9 @@ public class ConfigPropertyBool extends AbstractConfigProperty {
 
     private final boolean defaultValue;
     private boolean value;
-    public ConfigPropertyBool(String name, boolean defaultValue, String comment, int order) {
-        super(name, comment, order);
+
+    public ConfigPropertyBool(String id, boolean defaultValue, int order) {
+        super(id, order);
         this.defaultValue = defaultValue;
         value = defaultValue;
     }
@@ -22,13 +23,16 @@ public class ConfigPropertyBool extends AbstractConfigProperty {
     public boolean getValue() {
         return value;
     }
+
     public void setValue(boolean value) {
         this.value = value;
         dirty = true;
     }
+
     public boolean getDefaultValue() {
         return defaultValue;
     }
+
     @Override
     public boolean readValue(String value) {
         if ("true".equalsIgnoreCase(value)) {
@@ -41,28 +45,37 @@ public class ConfigPropertyBool extends AbstractConfigProperty {
             return false;
         }
     }
+
     @Override
     public String getAdditionalComment() {
-        return "[default: " + defaultValue + "]";
+        return "Default: " + defaultValue;
     }
+
     @Override
-    public String getTypeString() { return TYPE; }
+    public String getTypeString() {
+        return TYPE;
+    }
+
     @Override
     public String getValueString() {
         return value + "";
     }
+
     @Override
     public String getDefaultValueString() {
         return defaultValue + "";
     }
+
     @Override
     public boolean isDefault() {
         return value == defaultValue;
     }
+
     @Override
     public void setToDefault() {
         value = defaultValue;
     }
+
     @Override
     public boolean isValidValue(String str) {
         return "true".equalsIgnoreCase(str) || "false".equalsIgnoreCase(str);

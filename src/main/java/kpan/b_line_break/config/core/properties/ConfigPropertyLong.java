@@ -16,8 +16,9 @@ public class ConfigPropertyLong extends AbstractConfigProperty {
     private final long maxValue;
     private long value;
     private boolean hasSlidingControl = false;
-    public ConfigPropertyLong(String name, long defaultValue, long minValue, long maxValue, String comment, int order) {
-        super(name, comment, order);
+
+    public ConfigPropertyLong(String id, long defaultValue, long minValue, long maxValue, int order) {
+        super(id, order);
         this.defaultValue = defaultValue;
         this.minValue = minValue;
         this.maxValue = maxValue;
@@ -27,13 +28,16 @@ public class ConfigPropertyLong extends AbstractConfigProperty {
     public long getValue() {
         return value;
     }
+
     public void setValue(long value) {
         this.value = value;
         dirty = true;
     }
+
     public long getMinValue() {
         return minValue;
     }
+
     public long getMaxValue() {
         return maxValue;
     }
@@ -51,28 +55,47 @@ public class ConfigPropertyLong extends AbstractConfigProperty {
             return false;
         }
     }
+
     @Override
     public String getAdditionalComment() {
-        return "[range: " + minValue + " ~ " + maxValue + ", default: " + defaultValue + "]";
+        if (minValue == Long.MIN_VALUE) {
+            if (maxValue == Long.MAX_VALUE)
+                return "Default: " + defaultValue;
+            else
+                return "Range: ~ " + maxValue + "\nDefault: " + defaultValue;
+        } else {
+            if (maxValue == Long.MAX_VALUE)
+                return "Range: " + minValue + " ~" + "\nDefault: " + defaultValue;
+            else
+                return "Range: " + minValue + " ~ " + maxValue + "\nDefault: " + defaultValue;
+        }
     }
+
     @Override
-    public String getTypeString() { return TYPE; }
+    public String getTypeString() {
+        return TYPE;
+    }
+
     @Override
     public String getValueString() {
         return value + "";
     }
+
     @Override
     public String getDefaultValueString() {
         return defaultValue + "";
     }
+
     @Override
     public boolean isDefault() {
         return value == defaultValue;
     }
+
     @Override
     public void setToDefault() {
         value = defaultValue;
     }
+
     @Override
     public boolean isValidValue(String str) {
         try {
@@ -92,6 +115,7 @@ public class ConfigPropertyLong extends AbstractConfigProperty {
     public boolean hasSlidingControl() {
         return hasSlidingControl;
     }
+
     public void setHasSlidingControl(boolean hasSlidingControl) {
         this.hasSlidingControl = hasSlidingControl;
     }

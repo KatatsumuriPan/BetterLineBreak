@@ -191,6 +191,7 @@ public class ModConfigurationFile {
             ModMain.LOGGER.error("Config version not detected!");
         }
     }
+
     private void readOption(String name, String value) {
         switch (name) {
             case CONFIG_VERSION -> loadedConfigVersion = value;
@@ -213,7 +214,7 @@ public class ModConfigurationFile {
                 buffer.write("# This is a configuration file of " + ModReference.MODNAME + Configuration.NEW_LINE);
                 buffer.write("~" + CONFIG_VERSION + ": " + configVersion + Configuration.NEW_LINE + Configuration.NEW_LINE);
 
-                rootCategory.write(buffer, -1);
+                rootCategory.write(buffer, -1, "");
 
                 buffer.close();
                 fos.close();
@@ -233,6 +234,7 @@ public class ModConfigurationFile {
         }
         return category;
     }
+
     public ModConfigCategory getCategory(String categoryPath) {
         if (categoryPath.isEmpty())
             return rootCategory;
@@ -244,6 +246,7 @@ public class ModConfigurationFile {
         }
         return category;
     }
+
     @Nullable
     public ModConfigCategory tryGetCategory(String categoryPath) {
         if (categoryPath.isEmpty())
@@ -257,67 +260,86 @@ public class ModConfigurationFile {
         return category;
     }
 
-    public void createBool(String name, String categoryPath, boolean defaultValue, String comment, int order) {
-        getOrCreateCategory(categoryPath).create(name, defaultValue, comment, order);
+    public void createBool(String id, String categoryPath, boolean defaultValue, int order) {
+        getOrCreateCategory(categoryPath).create(id, defaultValue, order);
     }
-    public void createInt(String name, String categoryPath, int defaultValue, int minValue, int maxValue, String comment, int order) {
-        getOrCreateCategory(categoryPath).create(name, defaultValue, minValue, maxValue, comment, order);
+
+    public void createInt(String name, String categoryPath, int defaultValue, int minValue, int maxValue, int order) {
+        getOrCreateCategory(categoryPath).create(name, defaultValue, minValue, maxValue, order);
     }
-    public void createLong(String name, String categoryPath, long defaultValue, long minValue, long maxValue, String comment, int order) {
-        getOrCreateCategory(categoryPath).create(name, defaultValue, minValue, maxValue, comment, order);
+
+    public void createLong(String name, String categoryPath, long defaultValue, long minValue, long maxValue, int order) {
+        getOrCreateCategory(categoryPath).create(name, defaultValue, minValue, maxValue, order);
     }
-    public void createFloat(String name, String categoryPath, float defaultValue, float minValue, float maxValue, String comment, int order) {
-        getOrCreateCategory(categoryPath).create(name, defaultValue, minValue, maxValue, comment, order);
+
+    public void createFloat(String name, String categoryPath, float defaultValue, float minValue, float maxValue, int order) {
+        getOrCreateCategory(categoryPath).create(name, defaultValue, minValue, maxValue, order);
     }
-    public void createDouble(String name, String categoryPath, double defaultValue, double minValue, double maxValue, String comment, int order) {
-        getOrCreateCategory(categoryPath).create(name, defaultValue, minValue, maxValue, comment, order);
+
+    public void createDouble(String name, String categoryPath, double defaultValue, double minValue, double maxValue, int order) {
+        getOrCreateCategory(categoryPath).create(name, defaultValue, minValue, maxValue, order);
     }
-    public void createString(String name, String categoryPath, String defaultValue, String comment, int order) {
-        getOrCreateCategory(categoryPath).create(name, defaultValue, comment, order);
+
+    public void createString(String name, String categoryPath, String defaultValue, int order) {
+        getOrCreateCategory(categoryPath).create(name, defaultValue, order);
     }
-    public void createEnum(String name, String categoryPath, Enum<?> defaultValue, String comment, int order) {
-        getOrCreateCategory(categoryPath).create(name, defaultValue, comment, order);
+
+    public void createEnum(String name, String categoryPath, Enum<?> defaultValue, int order) {
+        getOrCreateCategory(categoryPath).create(name, defaultValue, order);
     }
 
     public boolean getBool(String name, String categoryPath) {
         return getCategory(categoryPath).getBool(name);
     }
+
     public int getInt(String name, String categoryPath) {
         return getCategory(categoryPath).getInt(name);
     }
+
     public long getLong(String name, String categoryPath) {
         return getCategory(categoryPath).getLong(name);
     }
+
     public float getFloat(String name, String categoryPath) {
         return getCategory(categoryPath).getFloat(name);
     }
+
     public double getDouble(String name, String categoryPath) {
         return getCategory(categoryPath).getDouble(name);
     }
+
     public String getString(String name, String categoryPath) {
         return getCategory(categoryPath).getString(name);
     }
+
     public <E extends Enum<E>> E getEnum(String name, String categoryPath) {
         return getCategory(categoryPath).getEnum(name);
     }
+
     public void setBool(String name, String categoryPath, boolean value) {
         getCategory(categoryPath).setBool(name, value);
     }
+
     public void setInt(String name, String categoryPath, int value) {
         getCategory(categoryPath).setInt(name, value);
     }
+
     public void setLong(String name, String categoryPath, long value) {
         getCategory(categoryPath).setLong(name, value);
     }
+
     public void setFloat(String name, String categoryPath, float value) {
         getCategory(categoryPath).setFloat(name, value);
     }
+
     public void setDouble(String name, String categoryPath, double value) {
         getCategory(categoryPath).setDouble(name, value);
     }
+
     public void setString(String name, String categoryPath, String value) {
         getCategory(categoryPath).setString(name, value);
     }
+
     public void setEnum(String name, String categoryPath, Enum<?> value) {
         getCategory(categoryPath).setEnum(name, value);
     }

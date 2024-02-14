@@ -2,9 +2,7 @@ package kpan.b_line_break.config.core;
 
 import com.google.common.base.Joiner;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import kpan.b_line_break.config.core.ConfigAnnotations.Comment;
 import kpan.b_line_break.config.core.ConfigAnnotations.ConfigOrder;
-import kpan.b_line_break.config.core.ConfigAnnotations.Name;
 import kpan.b_line_break.config.core.ConfigAnnotations.RangeDouble;
 import kpan.b_line_break.config.core.ConfigAnnotations.RangeFloat;
 import kpan.b_line_break.config.core.ConfigAnnotations.RangeInt;
@@ -23,6 +21,7 @@ public class ConfigHandler {
     public final String version;
     public final Consumer<ConfigVersionUpdateContext> updater;
     public ModConfigurationFile config;
+
     public ConfigHandler(Class<?> holderClass, String name, String version, Consumer<ConfigVersionUpdateContext> updater) {
         this.holderClass = holderClass;
         this.name = name;
@@ -36,9 +35,11 @@ public class ConfigHandler {
         config.load(updater);
         syncToFieldAndSave();
     }
+
     public ModConfigCategory getRootCategory() {
         return config.getRootCategory();
     }
+
     public void syncToFieldAndSave() {
         try {
             for (Field field : holderClass.getFields()) {
@@ -49,6 +50,7 @@ public class ConfigHandler {
         }
         save();
     }
+
     public void syncToConfigElementAndSave() {
         try {
             for (Field field : holderClass.getFields()) {
@@ -59,6 +61,7 @@ public class ConfigHandler {
         }
         save();
     }
+
     private void save() {
         config.save();
     }
@@ -72,13 +75,13 @@ public class ConfigHandler {
             throw new RuntimeException(e);
         }
     }
+
     private static void create(ModConfigurationFile config, String categoryPath, @Nullable Object instance, Field field) throws IllegalArgumentException, IllegalAccessException {
         Class<?> type = field.getType();
-        String name = getName(field);
-        String comment = getComment(field);
+        String id = getId(field);
         if (type == boolean.class) {
             boolean default_value = field.getBoolean(instance);
-            config.createBool(name, categoryPath, default_value, comment, getOrder(field));
+            config.createBool(id, categoryPath, default_value, getOrder(field));
         } else if (type == int.class) {
             int default_value = field.getInt(instance);
             int min = Integer.MIN_VALUE;
@@ -88,7 +91,7 @@ public class ConfigHandler {
                 min = annotation.minValue();
                 max = annotation.maxValue();
             }
-            config.createInt(name, categoryPath, default_value, min, max, comment, getOrder(field));
+            config.createInt(id, categoryPath, default_value, min, max, getOrder(field));
         } else if (type == long.class) {
             long default_value = field.getLong(instance);
             long min = Long.MIN_VALUE;
@@ -98,7 +101,7 @@ public class ConfigHandler {
                 min = annotation.minValue();
                 max = annotation.maxValue();
             }
-            config.createLong(name, categoryPath, default_value, min, max, comment, getOrder(field));
+            config.createLong(id, categoryPath, default_value, min, max, getOrder(field));
         } else if (type == float.class) {
             float default_value = field.getFloat(instance);
             float min = -Float.MAX_VALUE;
@@ -108,7 +111,7 @@ public class ConfigHandler {
                 min = annotation.minValue();
                 max = annotation.maxValue();
             }
-            config.createFloat(name, categoryPath, default_value, min, max, comment, getOrder(field));
+            config.createFloat(id, categoryPath, default_value, min, max, getOrder(field));
         } else if (type == double.class) {
             double default_value = field.getDouble(instance);
             double min = -Double.MAX_VALUE;
@@ -118,35 +121,35 @@ public class ConfigHandler {
                 min = annotation.minValue();
                 max = annotation.maxValue();
             }
-            config.createDouble(name, categoryPath, default_value, min, max, comment, getOrder(field));
+            config.createDouble(id, categoryPath, default_value, min, max, getOrder(field));
         } else if (type.isPrimitive()) {
             throw new RuntimeException("Not Supported:" + type.getName());
         } else if (type.isEnum()) {
             Enum<?> default_value = (Enum<?>) field.get(instance);
-            config.createEnum(name, categoryPath, default_value, comment, getOrder(field));
+            config.createEnum(id, categoryPath, default_value, getOrder(field));
         } else if (type.isArray()) {
             throw new RuntimeException("Array not Supported");
         } else if (type == String.class) {
             String default_value = (String) field.get(instance);
-            config.createString(name, categoryPath, default_value, comment, getOrder(field));
+            config.createString(id, categoryPath, default_value, getOrder(field));
         } else {
             String new_category_path;
             if (categoryPath.isEmpty()) {
-                new_category_path = name;
+                new_category_path = id;
             } else {
-                new_category_path = categoryPath + "." + name;
+                new_category_path = categoryPath + "." + id;
             }
             ModConfigCategory new_category = config.getOrCreateCategory(new_category_path);
-            new_category.setComment(comment);
             new_category.setOrder(getOrder(field));
             for (Field f : field.getType().getFields()) {
                 create(config, new_category_path, field.get(instance), f);
             }
         }
     }
+
     private static void elementToField(ModConfigurationFile config, String category, @Nullable Object instance, Field field) throws IllegalArgumentException, IllegalAccessException {
         Class<?> type = field.getType();
-        String name = getName(field);
+        String name = getId(field);
         if (type == boolean.class) {
             field.setBoolean(instance, config.getBool(name, category));
         } else if (type == int.class) {
@@ -177,9 +180,10 @@ public class ConfigHandler {
             }
         }
     }
+
     private static void fieldToElement(ModConfigurationFile config, String category, @Nullable Object instance, Field field) throws IllegalArgumentException, IllegalAccessException {
         Class<?> type = field.getType();
-        String name = getName(field);
+        String name = getId(field);
         if (type == boolean.class) {
             config.setBool(name, category, field.getBoolean(instance));
         } else if (type == int.class) {
@@ -210,18 +214,14 @@ public class ConfigHandler {
             }
         }
     }
-    private static String getName(Field field) {
-        Name annotation = field.getAnnotation(Name.class);
-        if (annotation == null)
-            return field.getName();
-        return annotation.value();
+
+    private static String getId(Field field) {
+        ConfigAnnotations.Id annotation = field.getAnnotation(ConfigAnnotations.Id.class);
+        if (annotation != null)
+            return annotation.value();
+        return field.getName();
     }
-    private static String getComment(Field field) {
-        Comment annotation = field.getAnnotation(Comment.class);
-        if (annotation == null)
-            return "";
-        return NEW_LINE.join(annotation.value());
-    }
+
     private static int getOrder(Field field) {
         ConfigOrder annotation = field.getAnnotation(ConfigOrder.class);
         if (annotation == null)

@@ -13,6 +13,7 @@ public class ModGuiFactory implements IModGuiFactory {
     public void initialize(Minecraft minecraftInstance) {
 
     }
+
     @Override
     public Class<? extends GuiScreen> mainConfigGuiClass() {
         return ModGuiConfig.class;
@@ -22,6 +23,7 @@ public class ModGuiFactory implements IModGuiFactory {
     public Set<RuntimeOptionCategoryElement> runtimeGuiCategories() {
         return null;
     }
+
     @Override
     public RuntimeOptionGuiHandler getHandlerFor(RuntimeOptionCategoryElement element) {
         return null;

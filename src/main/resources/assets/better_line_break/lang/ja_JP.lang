@@ -1,2 +1,3 @@
-better_line_break.config.lineBreakAlgorithm=改行アルゴリズム
-better_line_break.config.lineBreakAlgorithm.tooltip=改行に使うアルゴリズム
+better_line_break.config.Client.tooltip=クライアント設定(表示設定、リソースなど)
+better_line_break.config.Client.LineBreakAlgorithm=改行アルゴリズム
+better_line_break.config.Client.LineBreakAlgorithm.tooltip=改行に使うアルゴリズム
