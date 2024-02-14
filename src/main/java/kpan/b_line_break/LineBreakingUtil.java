@@ -1,7 +1,6 @@
 package kpan.b_line_break;
 
 import com.google.common.collect.Lists;
-import com.mojang.realmsclient.gui.ChatFormatting;
 import kpan.b_line_break.budoux.Parser;
 import kpan.b_line_break.compat.CompatFontRenderer;
 import kpan.b_line_break.config.ConfigHolder;
@@ -9,9 +8,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.resources.Language;
 import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IChatComponent;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -187,7 +187,7 @@ public class LineBreakingUtil {
     }
 
     public static @Nullable Parser getParser() {
-        switch (ConfigHolder.client.lineBreakAlgorithm) {
+        switch (ConfigHolder.lineBreakAlgorithm) {
             case VANILLA:
             case NON_ASCII:
                 return null;
@@ -206,7 +206,7 @@ public class LineBreakingUtil {
                         return null;
                 }
             default:
-                throw new IllegalStateException("Unexpected value: " + ConfigHolder.client.lineBreakAlgorithm);
+                throw new IllegalStateException("Unexpected value: " + ConfigHolder.lineBreakAlgorithm);
         }
     }
 
@@ -223,7 +223,7 @@ public class LineBreakingUtil {
     }
 
     public static boolean canBreak(char prevChar, char c, int index, Set<Integer> breakIndices) {
-        switch (ConfigHolder.client.lineBreakAlgorithm) {
+        switch (ConfigHolder.lineBreakAlgorithm) {
             case VANILLA:
                 return false;
             case NON_ASCII:
@@ -450,7 +450,7 @@ public class LineBreakingUtil {
     }
 
     private static String removeTextColorsIfConfigured(String text, boolean forceColor) {
-        return !forceColor && !Minecraft.getMinecraft().gameSettings.chatColours ? ChatFormatting.stripFormatting(text) : text;
+        return !forceColor && !Minecraft.getMinecraft().gameSettings.chatColours ? EnumChatFormatting.getTextWithoutFormattingCodes(text) : text;
     }
 
 }

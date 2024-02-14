@@ -1,53 +1,61 @@
 package kpan.b_line_break.config;
 
-import kpan.b_line_break.config.core.ConfigAnnotations.Comment;
-import kpan.b_line_break.config.core.ConfigAnnotations.ConfigOrder;
-import kpan.b_line_break.config.core.ConfigAnnotations.Name;
-import kpan.b_line_break.config.core.ConfigVersionUpdateContext;
+import net.minecraftforge.common.config.Configuration;
+
+import java.io.File;
+
+import static kpan.b_line_break.ModReference.MODID;
 
 public class ConfigHolder {
 
-//	@Comment("Common settings(Blocks, items, etc.)")
-//	@ConfigOrder(5)
-//	public static Common common = new Common();
+    public static Configuration config;
 
-	public static class Common {
+    public static Algorithm lineBreakAlgorithm = Algorithm.NON_ASCII;
 
-	}
+    private static final String LANG_PREFIX = MODID + ".config.";
 
-	@Comment("Client only settings(Rendering, resources, etc.)")
-	@ConfigOrder(1)
-	public static Client client = new Client();
+    public static void init(File configFile) {
+        config = new Configuration(configFile);
+        syncConfig();
+    }
 
-	public static class Client {
+    public static void syncConfig() {
+        config.setCategoryComment(Configuration.CATEGORY_GENERAL, "General");
 
-		@Name("Line Break Algorithm")
-		@Comment("The algorithm used for line breaks")
-		@ConfigOrder(1)
-		public Algorithm lineBreakAlgorithm = Algorithm.NON_ASCII;
+        lineBreakAlgorithm = Algorithm.fromString(
+            config.get(
+                    Configuration.CATEGORY_GENERAL,
+                    "lineBreakAlgorithm",
+                    "NON_ASCII",
+                    """
+                    The algorithm used for line breaks
+                    Possible values: [VANILLA, NON_ASCII, PHRASE]
+                     [default: NON_ASCII]""",
+                    new String[] {
+                        "VANILLA",
+                        "NON_ASCII",
+                        "PHRASE",
+                    }
+                )
+                .setLanguageKey(LANG_PREFIX + "lineBreakAlgorithm")
+                .getString());
 
-		public enum Algorithm {
-			VANILLA,
-			NON_ASCII,
-			PHRASE,
-		}
-	}
+        if (config.hasChanged()) {
+            config.save();
+        }
+    }
 
-	//	@Comment("Server settings(Behaviors, physics, etc.)")
-	//	public static Server server = new Server();
+    public enum Algorithm {
+        VANILLA,
+        NON_ASCII,
+        PHRASE;
 
-	public static class Server {
-
-	}
-
-	public static void updateVersion(ConfigVersionUpdateContext context) {
-		switch (context.loadedConfigVersion) {
-			case "1":
-				break;
-			default:
-				throw new RuntimeException("Unknown config version:" + context.loadedConfigVersion);
-		}
-	}
-
-	public static String getVersion() { return "1"; }
+        public static Algorithm fromString(String name) {
+            try {
+                return Algorithm.valueOf(name);
+            } catch (IllegalArgumentException ignored) {
+                return NON_ASCII;
+            }
+        }
+    }
 }
