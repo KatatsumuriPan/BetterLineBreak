@@ -6,11 +6,8 @@ import net.minecraft.client.gui.FontRenderer;
 @SuppressWarnings("unused")
 public class HK_FontRenderer {
 
-	public static int sizeStringToWidth(FontRenderer self, String str, int wrapWidth) {
-		return LineBreakingUtil.getCharacterCountForWidth(self, str, wrapWidth);
-	}
-
-    public static int sizeStringToWidth(String str, int wrapWidth, FontRenderer fontRenderer) {
-        return LineBreakingUtil.getCharacterCountForWidth(fontRenderer, str, wrapWidth);
+    public static int sizeStringToWidth(FontRenderer self, String str, int wrapWidth) {
+        return LineBreakingUtil.getCharacterCountForWidth(self, str, wrapWidth);
     }
+
 }

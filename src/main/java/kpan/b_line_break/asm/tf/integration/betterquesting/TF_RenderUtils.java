@@ -8,7 +8,7 @@ import org.objectweb.asm.ClassVisitor;
 public class TF_RenderUtils {
 
     private static final String TARGET = "betterquesting.api.utils.RenderUtils";
-    private static final String HOOK = AsmTypes.HOOK + "HK_" + "FontRenderer";
+    private static final String HOOK = AsmTypes.HOOK + "integration/betterquesting/" + "HK_" + "RenderUtils";
 
     public static ClassVisitor appendVisitor(ClassVisitor cv, String className) {
         if (!TARGET.equals(className))

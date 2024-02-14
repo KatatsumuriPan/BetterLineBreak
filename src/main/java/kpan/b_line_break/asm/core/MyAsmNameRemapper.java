@@ -22,8 +22,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import static kpan.b_line_break.asm.core.AsmUtil.LOGGER;
-
 public class MyAsmNameRemapper {
 
     private static LaunchClassLoader classLoader;
@@ -39,7 +37,7 @@ public class MyAsmNameRemapper {
         if (classLoader == null) {
             classLoader = MyReflectionHelper.getPrivateField(FMLDeobfuscatingRemapper.INSTANCE, "classLoader");
             loadDeobfMap();
-            LOGGER.info("Obf Rename Mapping Loaded Completely");
+            AsmUtil.LOGGER.info("Obf Rename Mapping Loaded Completely");
         }
     }
     private static void loadDeobfMap() {
@@ -141,7 +139,7 @@ public class MyAsmNameRemapper {
             mergeSuperMaps(obfName, superName, interfaces);
             srgMcpLoadedSet.add(obfName);
         } catch (IOException e) {
-            LOGGER.error("Error getting patched resource:", e);
+            AsmUtil.LOGGER.error("Error getting patched resource:", e);
         }
     }
     private static void mergeSuperMaps(String obfName, @Nullable String superName, String[] interfaces) {
@@ -188,7 +186,7 @@ public class MyAsmNameRemapper {
         methodObfSrgMap.put(obfName, ImmutableBiMap.copyOf(method_obfsrg_map));
         fieldObfSrgMap.put(obfName, ImmutableBiMap.copyOf(field_obfsrg_map));
 
-        LOGGER.debug("map : " + deobf + "  count : " + method_obfsrg_map.size() + "," + field_obfsrg_map.size());
+        AsmUtil.LOGGER.debug("map : " + deobf + "  count : " + method_obfsrg_map.size() + "," + field_obfsrg_map.size());
     }
 
     public static class NameDescPair {

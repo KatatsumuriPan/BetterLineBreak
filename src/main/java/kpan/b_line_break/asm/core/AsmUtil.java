@@ -1,5 +1,6 @@
 package kpan.b_line_break.asm.core;
 
+import kpan.b_line_break.ModReference;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -14,13 +15,11 @@ import javax.annotation.Nullable;
 import java.lang.reflect.Method;
 import java.util.Map;
 
-import static kpan.b_line_break.ModReference.MODNAME;
-
 public class AsmUtil {
     public static final int ASM_VER = Opcodes.ASM5;
     private static boolean isDeobf = false;
 
-    public static final Logger LOGGER = LogManager.getLogger(MODNAME);
+    public static final Logger LOGGER = LogManager.getLogger(ModReference.MODNAME);
 
     public static void checkEnvironment(Map<String, Object> data) {
         boolean obfuscated = (boolean) data.get("runtimeDeobfuscationEnabled");
@@ -123,7 +122,7 @@ public class AsmUtil {
             String arr_str = arr_dim > 0 ? StringUtils.repeat('[', arr_dim) : "";
             desc = desc.substring(arr_dim);
             if (desc.equals(AsmTypes.VOID) || desc.equals(AsmTypes.BOOL) || desc.equals(AsmTypes.CHAR) || desc.equals(AsmTypes.BYTE) || desc.equals(AsmTypes.SHORT) || desc.equals(AsmTypes.INT)
-                || desc.equals(AsmTypes.LONG) || desc.equals(AsmTypes.FLOAT) || desc.equals(AsmTypes.DOUBLE))
+                    || desc.equals(AsmTypes.LONG) || desc.equals(AsmTypes.FLOAT) || desc.equals(AsmTypes.DOUBLE))
                 return arr_str + desc;
             desc = desc.replace('.', '/');
             desc = desc.matches("L.+;") ? desc : "L" + desc + ";";//全体とマッチ
