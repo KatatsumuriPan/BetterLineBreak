@@ -1,7 +1,6 @@
 package kpan.b_line_break.asm.core;
 
 import kpan.b_line_break.ModReference;
-import kpan.b_line_break.ModTagsGenerated;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +22,7 @@ public class AsmTypes {
 	public static final String OBJECT = "java/lang/Object";
 	public static final String OBJECT_ARR = "[java/lang/Object";
 	public static final String STRING = "java/lang/String";
+    public static final String FONT_RENDERER = "net/minecraft/client/gui/FontRenderer";
 	public static final String BLOCKPOS = "net/minecraft/util/math/BlockPos";
 	public static final String BLOCK = "net/minecraft/block/Block";
 	public static final String IBLOCKSTATE = "net/minecraft/block/state/IBlockState";

@@ -7,13 +7,11 @@ import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
 import cpw.mods.fml.common.patcher.ClassPatchManager;
 import kpan.b_line_break.util.MyReflectionHelper;
 import net.minecraft.launchwrapper.LaunchClassLoader;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
 import org.objectweb.asm.ClassReader;
 
 import javax.annotation.Nullable;
@@ -23,6 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+
+import static kpan.b_line_break.asm.core.AsmUtil.LOGGER;
 
 public class MyAsmNameRemapper {
 
@@ -39,7 +39,7 @@ public class MyAsmNameRemapper {
         if (classLoader == null) {
             classLoader = MyReflectionHelper.getPrivateField(FMLDeobfuscatingRemapper.INSTANCE, "classLoader");
             loadDeobfMap();
-            LogManager.getLogger().info("Obf Rename Mapping Loaded Completely");
+            LOGGER.info("Obf Rename Mapping Loaded Completely");
         }
     }
     private static void loadDeobfMap() {
@@ -141,7 +141,7 @@ public class MyAsmNameRemapper {
             mergeSuperMaps(obfName, superName, interfaces);
             srgMcpLoadedSet.add(obfName);
         } catch (IOException e) {
-            FMLLog.getLogger().error("Error getting patched resource:", e);
+            LOGGER.error("Error getting patched resource:", e);
         }
     }
     private static void mergeSuperMaps(String obfName, @Nullable String superName, String[] interfaces) {
@@ -188,7 +188,7 @@ public class MyAsmNameRemapper {
         methodObfSrgMap.put(obfName, ImmutableBiMap.copyOf(method_obfsrg_map));
         fieldObfSrgMap.put(obfName, ImmutableBiMap.copyOf(field_obfsrg_map));
 
-        LogManager.getLogger().debug("map : " + deobf + "  count : " + method_obfsrg_map.size() + "," + field_obfsrg_map.size());
+        LOGGER.debug("map : " + deobf + "  count : " + method_obfsrg_map.size() + "," + field_obfsrg_map.size());
     }
 
     public static class NameDescPair {

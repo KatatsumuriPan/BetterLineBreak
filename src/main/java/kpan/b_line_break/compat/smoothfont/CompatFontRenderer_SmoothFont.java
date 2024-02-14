@@ -1,7 +1,10 @@
 package kpan.b_line_break.compat.smoothfont;
 
+import bre.smoothfont.FontRendererHook;
+import bre.smoothfont.FontUtils;
+import bre.smoothfont.asm.CorePlugin;
+import kpan.b_line_break.compat.optifine.CompatFontRenderer_Optifine;
 import net.minecraft.client.gui.FontRenderer;
-import org.apache.commons.lang3.NotImplementedException;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -27,26 +30,25 @@ public class CompatFontRenderer_SmoothFont {
     //TODO:まだまだ足りない
 
     public static float getCharWidthFloat(FontRenderer fontRenderer, char ch) {
-        throw new NotImplementedException("");
+        return getFontRendererHook(fontRenderer).getCharWidthFloat(ch);
     }
 
     public static float getOffsetBold(FontRenderer fontRenderer, char ch) {
-        throw new NotImplementedException("");
-//        if (CorePlugin.optifineExist) {
-//            int defaultGlyph = FontUtils.getDefaultGlyphIndex(ch);
-//            FontRendererHook fontRendererHook = getFontRendererHook(fontRenderer);
-//            return (defaultGlyph == -1 || fontRendererHook.thinFontFlag) ? 0.5F : CompatFontRenderer_Optifine.getOffsetBold(fontRenderer);
-//        } else {
-//            return 1;
-//        }
+        if (CorePlugin.optifineExist) {
+            int defaultGlyph = FontUtils.getDefaultGlyphIndex(ch);
+            FontRendererHook fontRendererHook = getFontRendererHook(fontRenderer);
+            return (defaultGlyph == -1 || fontRendererHook.thinFontFlag) ? 0.5F : CompatFontRenderer_Optifine.getOffsetBold(fontRenderer);
+        } else {
+            return 1;
+        }
     }
 
-//    public static FontRendererHook getFontRendererHook(FontRenderer fontRenderer) {
-//        try {
-//            return (FontRendererHook) fontRendererHook.invokeExact(fontRenderer);
-//        } catch (Throwable e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
+    public static FontRendererHook getFontRendererHook(FontRenderer fontRenderer) {
+        try {
+            return (FontRendererHook) fontRendererHook.invokeExact(fontRenderer);
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 }

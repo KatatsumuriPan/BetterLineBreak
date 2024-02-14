@@ -2,6 +2,8 @@ package kpan.b_line_break.asm.core;
 
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -12,9 +14,13 @@ import javax.annotation.Nullable;
 import java.lang.reflect.Method;
 import java.util.Map;
 
+import static kpan.b_line_break.ModReference.MODNAME;
+
 public class AsmUtil {
     public static final int ASM_VER = Opcodes.ASM5;
     private static boolean isDeobf = false;
+
+    public static final Logger LOGGER = LogManager.getLogger(MODNAME);
 
     public static void checkEnvironment(Map<String, Object> data) {
         boolean obfuscated = (boolean) data.get("runtimeDeobfuscationEnabled");

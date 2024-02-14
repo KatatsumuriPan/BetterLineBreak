@@ -1,23 +1,14 @@
-{
-  "modListVersion": 2,
-  "modList": [
+[
     {
       "modid": "${modId}",
       "name": "${modName}",
       "description": "Better line break for other languages!",
       "version": "${modVersion}",
       "mcversion": "${minecraftVersion}",
+      "logoFile": "icon.png",
       "url": "",
-      "updateUrl": "",
       "authorList": ["katatsumuri_pan"],
       "credits": "",
-      "logoFile": "",
-      "screenshots": [],
-      "parent": "",
-      "requiredMods": [],
-      "dependencies": [],
-      "dependants": [],
-      "useDependencyInformation": false
+      "dependencies": []
     }
-  ]
-}
+]

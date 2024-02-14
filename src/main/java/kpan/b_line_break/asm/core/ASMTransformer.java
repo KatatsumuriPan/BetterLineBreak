@@ -3,6 +3,8 @@ package kpan.b_line_break.asm.core;
 import kpan.b_line_break.asm.core.adapters.MixinAccessorAdapter;
 import kpan.b_line_break.asm.tf.TF_FontRenderer;
 import kpan.b_line_break.asm.tf.TF_GuiNewChat;
+import kpan.b_line_break.asm.tf.integration.betterquesting.TF_RenderUtils;
+import kpan.b_line_break.asm.tf.integration.smoothfont.TF_FontRendererHook;
 import net.minecraft.launchwrapper.IClassTransformer;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
@@ -31,7 +33,8 @@ public class ASMTransformer implements IClassTransformer {
             ClassVisitor cv = cw;
             cv = MixinAccessorAdapter.transformAccessor(cv, transformedName);
             cv = TF_FontRenderer.appendVisitor(cv, transformedName);
-//			cv = TF_FontRendererHook.appendVisitor(cv, transformedName);
+            cv = TF_FontRendererHook.appendVisitor(cv, transformedName);
+            cv = TF_RenderUtils.appendVisitor(cv, transformedName);
             cv = TF_GuiNewChat.appendVisitor(cv, transformedName);
 
             if (cv == cw)
