@@ -11,10 +11,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 // The value here should match an entry in the META-INF/mods.toml file
-@Mod(ModReference.MOD_ID)
+@Mod(ModReference.MODID)
 public class ModMain {
 	// Directly reference a log4j logger.
-	public static final Logger LOGGER = LogManager.getLogger();
+	public static final Logger LOGGER = LogManager.getLogger(ModReference.MODNAME);
 
 	public ModMain() {
 
