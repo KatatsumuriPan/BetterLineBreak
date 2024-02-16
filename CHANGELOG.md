@@ -1,5 +1,10 @@
 # Change Log
 
+### [1.20.4-fabric-1.1.0](https://github.com/KatatsumuriPan/BetterLineBreak/releases/tag/1.20.4-fabric-1.1.0) - 2024-02-16
+
+- Fix not break with PHRASE mode.
+- Cache budouX model.
+
 ### [1.20.4-fabric-1.0.2](https://github.com/KatatsumuriPan/BetterLineBreak/releases/tag/1.20.4-fabric-1.0.2) - 2024-01-31
 
 - Fix freezing bug.
