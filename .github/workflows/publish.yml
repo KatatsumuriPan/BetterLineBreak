@@ -13,6 +13,9 @@ on:
           - 'CurseForge'
           - 'Modrinth'
           - 'Github'
+          - 'CurseForge and Modrinth'
+          - 'CurseForge and Github'
+          - 'Modrinth and Github'
       commitish:
         description: 'Commit id'
 
