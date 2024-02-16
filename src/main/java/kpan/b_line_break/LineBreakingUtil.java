@@ -1,10 +1,10 @@
 package kpan.b_line_break;
 
-import com.google.budoux.Parser;
 import com.google.common.collect.Lists;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.ints.IntSets;
+import kpan.b_line_break.budoux.Parser;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.resource.language.LanguageDefinition;
