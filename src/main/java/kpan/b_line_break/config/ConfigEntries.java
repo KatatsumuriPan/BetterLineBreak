@@ -494,7 +494,7 @@ public class ConfigEntries extends AbstractList<AbstractGuiConfigEntry> {
 			comment = ConfigUtil.getComment(configScreen.forgeConfigSpec, configValue);
 
 			toolTip.add(name.copy().withStyle(TextFormatting.GREEN));
-			String tooltip = I18n.get("config." + ModReference.MOD_ID + "." + StringUtils.join(configValue.getPath(), '.') + ".tooltip").replace("\\n", "\n");
+			String tooltip = I18n.get("config." + ModReference.MODID + "." + StringUtils.join(configValue.getPath(), '.') + ".tooltip").replace("\\n", "\n");
 			if (I18n.exists(tooltip))
 				toolTip.addAll(TextComponentUtil.splitLines(new StringTextComponent(tooltip).withStyle(TextFormatting.YELLOW)));
 			else if (comment != null)
@@ -555,7 +555,7 @@ public class ConfigEntries extends AbstractList<AbstractGuiConfigEntry> {
 			drawLabel = false;
 
 			toolTip.add(name.copy().withStyle(TextFormatting.GREEN));
-			String tooltip = I18n.get("config." + ModReference.MOD_ID + "." + StringUtils.join(categoryPath, '.') + ".tooltip").replace("\\n", "\n");
+			String tooltip = I18n.get("config." + ModReference.MODID + "." + StringUtils.join(categoryPath, '.') + ".tooltip").replace("\\n", "\n");
 			if (I18n.exists(tooltip))
 				toolTip.add(new StringTextComponent(tooltip).withStyle(TextFormatting.YELLOW));
 			else if (comment != null)
