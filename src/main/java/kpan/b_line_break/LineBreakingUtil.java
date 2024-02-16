@@ -102,10 +102,10 @@ public class LineBreakingUtil {
 			case PHRASE -> {
 				String language = MinecraftClient.getInstance().getLanguageManager().getLanguage();
 				return switch (language) {
-					case "ja_jp" -> Parser.loadByFileName("/models/ja_tuned.json");
-					case "zh_cn" -> Parser.loadDefaultSimplifiedChineseParser();
-					case "zh_tw" -> Parser.loadDefaultTraditionalChineseParser();
-					case "th_th" -> Parser.loadDefaultThaiParser();
+					case "ja_jp" -> Parser.Cache.getOrLoad("/models/ja_tuned.json");
+					case "zh_cn" -> Parser.Cache.getOrLoad("/models/zh-hans.json");
+					case "zh_tw" -> Parser.Cache.getOrLoad("/models/zh-hant.json");
+					case "th_th" -> Parser.Cache.getOrLoad("/models/th.json");
 					default -> null;
 				};
 			}
@@ -166,6 +166,8 @@ public class LineBreakingUtil {
 					return false;
 				if (isStartBracket(prevChar))
 					return false;
+				if (breakIndices.contains(index))
+					return true;
 				if (!isNormalAsciiLetter(prevChar) && isNormalAsciiLetter(c))
 					return true;
 				return false;
