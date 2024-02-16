@@ -276,6 +276,8 @@ public class LineBreakingUtil {
 					return false;
 				if (isStartBracket(prevChar))
 					return false;
+				if (breakIndices.contains(index))
+					return true;
 				if (!isNormalAsciiLetter(prevChar) && isNormalAsciiLetter(c))
 					return true;
 				return false;
