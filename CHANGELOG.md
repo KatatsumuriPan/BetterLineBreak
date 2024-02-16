@@ -1,5 +1,10 @@
 # Change Log
 
+### [1.16.5-forge-1.1.0](https://github.com/KatatsumuriPan/BetterLineBreak/releases/tag/1.16.5-forge-1.1.0) - 2024-02-16
+
+- Fix not break with PHRASE mode.
+- Cache budouX model.
+
 ### [1.16.5-forge-1.0.2](https://github.com/KatatsumuriPan/BetterLineBreak/releases/tag/1.16.5-forge-1.0.2) - 2024-02-07
 
 - Fix crashing bug.
