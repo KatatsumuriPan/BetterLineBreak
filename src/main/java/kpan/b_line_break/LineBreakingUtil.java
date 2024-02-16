@@ -1,10 +1,10 @@
 package kpan.b_line_break;
 
-import com.google.budoux.Parser;
 import com.google.common.collect.Lists;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.ints.IntSets;
+import kpan.b_line_break.budoux.Parser;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.resource.language.LanguageDefinition;
@@ -198,13 +198,13 @@ public class LineBreakingUtil {
 				LanguageDefinition language = MinecraftClient.getInstance().getLanguageManager().getLanguage();
 				switch (language.getCode()) {
 					case "ja_jp":
-						return Parser.loadByFileName("/models/ja_tuned.json");
+						return Parser.Cache.getOrLoad("/models/ja_tuned.json");
 					case "zh_cn":
-						return Parser.loadDefaultSimplifiedChineseParser();
+						return Parser.Cache.getOrLoad("/models/zh-hans.json");
 					case "zh_tw":
-						return Parser.loadDefaultTraditionalChineseParser();
+						return Parser.Cache.getOrLoad("/models/zh-hant.json");
 					case "th_th":
-						return Parser.loadDefaultThaiParser();
+						return Parser.Cache.getOrLoad("/models/th.json");
 					default:
 						return null;
 				}
@@ -276,6 +276,8 @@ public class LineBreakingUtil {
 					return false;
 				if (isStartBracket(prevChar))
 					return false;
+				if (breakIndices.contains(index))
+					return true;
 				if (!isNormalAsciiLetter(prevChar) && isNormalAsciiLetter(c))
 					return true;
 				return false;
