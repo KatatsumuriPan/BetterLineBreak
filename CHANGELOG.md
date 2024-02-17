@@ -3,7 +3,6 @@
 ### [1.20.1-fabric-1.1.0](https://github.com/KatatsumuriPan/BetterLineBreak/releases/tag/1.20.1-fabric-1.1.0) - 2024-02-16
 
 - Fix not break with PHRASE mode.
-- Fix not break with PHRASE mode.
 - Cache budouX model.
 
 ### [1.20.1-fabric-1.0.1](https://github.com/KatatsumuriPan/BetterLineBreak/releases/tag/1.20.1-fabric-1.0.1) - 2024-01-31
