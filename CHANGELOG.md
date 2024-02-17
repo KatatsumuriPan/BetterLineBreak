@@ -1,5 +1,10 @@
 # Change Log
 
+### [1.12.2-forge-1.2.0](https://github.com/KatatsumuriPan/BetterLineBreak/releases/tag/1.12.2-forge-1.2.0) - 2024-02-17
+
+- Add Better Questing compatibility.
+- Fix vanilla bold width bug.
+
 ### [1.12.2-forge-1.1.0](https://github.com/KatatsumuriPan/BetterLineBreak/releases/tag/1.12.2-forge-1.1.0) - 2024-02-10
 
 - Cache budouX model.
