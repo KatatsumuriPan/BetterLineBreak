@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "kpan.b_line_break.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [],
+  "client": ["StringSplitterMixin"],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "refmap": "b_line_break.mixins.refmap.json"
+}
