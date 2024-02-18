@@ -2,8 +2,8 @@ NAME: "BetterLineBreak"
 CURSEFORGE_ID: "960082"
 CURSEFORGE_DEPENDENCIES: |
   cloth-config(required)
-  modmenu(required)
+  modmenu(optional)
 MODRINTH_ID: "zp6DtFf2"
 MODRINTH_DEPENDENCIES: |
   cloth-config(required)
-  modmenu(required)
+  modmenu(optional)
