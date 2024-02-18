@@ -7,7 +7,7 @@ Better line break for non-alphabet languages!
 This program is released under the LGPL v2.1.
 See [LICENSE](/LICENSE)
 
-# Credit
+# Credits
 
 This program uses [BudouX](https://github.com/google/budoux) under Apache License 2.0.
 
