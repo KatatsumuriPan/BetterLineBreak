@@ -3,6 +3,7 @@ package kpan.b_line_break.config.core;
 import com.google.common.base.Joiner;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import kpan.b_line_break.config.core.ConfigAnnotations.ConfigOrder;
+import kpan.b_line_break.config.core.ConfigAnnotations.FileComment;
 import kpan.b_line_break.config.core.ConfigAnnotations.RangeDouble;
 import kpan.b_line_break.config.core.ConfigAnnotations.RangeFloat;
 import kpan.b_line_break.config.core.ConfigAnnotations.RangeInt;
@@ -79,9 +80,10 @@ public class ConfigHandler {
     private static void create(ModConfigurationFile config, String categoryPath, @Nullable Object instance, Field field) throws IllegalArgumentException, IllegalAccessException {
         Class<?> type = field.getType();
         String id = getId(field);
+        String fileComment = getCommentForFile(field);
         if (type == boolean.class) {
             boolean default_value = field.getBoolean(instance);
-            config.createBool(id, categoryPath, default_value, getOrder(field));
+            config.createBool(id, categoryPath, default_value, fileComment, getOrder(field));
         } else if (type == int.class) {
             int default_value = field.getInt(instance);
             int min = Integer.MIN_VALUE;
@@ -91,7 +93,7 @@ public class ConfigHandler {
                 min = annotation.minValue();
                 max = annotation.maxValue();
             }
-            config.createInt(id, categoryPath, default_value, min, max, getOrder(field));
+            config.createInt(id, categoryPath, default_value, min, max, fileComment, getOrder(field));
         } else if (type == long.class) {
             long default_value = field.getLong(instance);
             long min = Long.MIN_VALUE;
@@ -101,7 +103,7 @@ public class ConfigHandler {
                 min = annotation.minValue();
                 max = annotation.maxValue();
             }
-            config.createLong(id, categoryPath, default_value, min, max, getOrder(field));
+            config.createLong(id, categoryPath, default_value, min, max, fileComment, getOrder(field));
         } else if (type == float.class) {
             float default_value = field.getFloat(instance);
             float min = -Float.MAX_VALUE;
@@ -111,7 +113,7 @@ public class ConfigHandler {
                 min = annotation.minValue();
                 max = annotation.maxValue();
             }
-            config.createFloat(id, categoryPath, default_value, min, max, getOrder(field));
+            config.createFloat(id, categoryPath, default_value, min, max, fileComment, getOrder(field));
         } else if (type == double.class) {
             double default_value = field.getDouble(instance);
             double min = -Double.MAX_VALUE;
@@ -121,17 +123,17 @@ public class ConfigHandler {
                 min = annotation.minValue();
                 max = annotation.maxValue();
             }
-            config.createDouble(id, categoryPath, default_value, min, max, getOrder(field));
+            config.createDouble(id, categoryPath, default_value, min, max, fileComment, getOrder(field));
         } else if (type.isPrimitive()) {
             throw new RuntimeException("Not Supported:" + type.getName());
         } else if (type.isEnum()) {
             Enum<?> default_value = (Enum<?>) field.get(instance);
-            config.createEnum(id, categoryPath, default_value, getOrder(field));
+            config.createEnum(id, categoryPath, default_value, fileComment, getOrder(field));
         } else if (type.isArray()) {
             throw new RuntimeException("Array not Supported");
         } else if (type == String.class) {
             String default_value = (String) field.get(instance);
-            config.createString(id, categoryPath, default_value, getOrder(field));
+            config.createString(id, categoryPath, default_value, fileComment, getOrder(field));
         } else {
             String new_category_path;
             if (categoryPath.isEmpty()) {
@@ -140,6 +142,7 @@ public class ConfigHandler {
                 new_category_path = categoryPath + "." + id;
             }
             ModConfigCategory new_category = config.getOrCreateCategory(new_category_path);
+            new_category.setCommentForFile(fileComment);
             new_category.setOrder(getOrder(field));
             for (Field f : field.getType().getFields()) {
                 create(config, new_category_path, field.get(instance), f);
@@ -220,6 +223,13 @@ public class ConfigHandler {
         if (annotation != null)
             return annotation.value();
         return field.getName();
+    }
+
+    private static String getCommentForFile(Field field) {
+        FileComment annotation = field.getAnnotation(FileComment.class);
+        if (annotation != null)
+            return annotation.value();
+        return "";
     }
 
     private static int getOrder(Field field) {

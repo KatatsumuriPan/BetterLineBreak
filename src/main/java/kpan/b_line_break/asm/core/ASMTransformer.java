@@ -25,6 +25,8 @@ public class ASMTransformer implements IClassTransformer {
             MyAsmNameRemapper.init();
             if (bytes == null)
                 return null;
+            if(transformedName.startsWith("org."))
+                return bytes;
             //byte配列を読み込み、利用しやすい形にする。
             ClassReader cr = new ClassReader(bytes);
             //これのvisitを呼ぶことによって情報が溜まっていく。

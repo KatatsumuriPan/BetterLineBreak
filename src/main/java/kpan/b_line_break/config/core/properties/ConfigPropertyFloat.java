@@ -17,8 +17,8 @@ public class ConfigPropertyFloat extends AbstractConfigProperty {
     private float value;
     private boolean hasSlidingControl = false;
 
-    public ConfigPropertyFloat(String id, float defaultValue, float minValue, float maxValue, int order) {
-        super(id, order);
+    public ConfigPropertyFloat(String id, float defaultValue, float minValue, float maxValue, String commentForFile, int order) {
+        super(id, commentForFile, order);
         this.defaultValue = defaultValue;
         this.minValue = minValue;
         this.maxValue = maxValue;

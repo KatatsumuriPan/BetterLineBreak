@@ -16,8 +16,8 @@ public class ConfigPropertyEnum extends AbstractConfigProperty {
     private final Enum<?> defaultValue;
     private Enum<?> value;
 
-    public ConfigPropertyEnum(String id, Enum<?> defaultValue, int order) {
-        super(id, order);
+    public ConfigPropertyEnum(String id, Enum<?> defaultValue, String commentForFile, int order) {
+        super(id, commentForFile, order);
         enumClass = (Class<? extends Enum<?>>) defaultValue.getClass();
         this.defaultValue = defaultValue;
         value = defaultValue;

@@ -17,8 +17,8 @@ public class ConfigPropertyLong extends AbstractConfigProperty {
     private long value;
     private boolean hasSlidingControl = false;
 
-    public ConfigPropertyLong(String id, long defaultValue, long minValue, long maxValue, int order) {
-        super(id, order);
+    public ConfigPropertyLong(String id, long defaultValue, long minValue, long maxValue, String commentForFile, int order) {
+        super(id, commentForFile, order);
         this.defaultValue = defaultValue;
         this.minValue = minValue;
         this.maxValue = maxValue;

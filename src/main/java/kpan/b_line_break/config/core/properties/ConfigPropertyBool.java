@@ -14,8 +14,8 @@ public class ConfigPropertyBool extends AbstractConfigProperty {
     private final boolean defaultValue;
     private boolean value;
 
-    public ConfigPropertyBool(String id, boolean defaultValue, int order) {
-        super(id, order);
+    public ConfigPropertyBool(String id, boolean defaultValue, String commentForFile, int order) {
+        super(id, commentForFile, order);
         this.defaultValue = defaultValue;
         value = defaultValue;
     }

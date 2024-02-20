@@ -1,18 +1,21 @@
 package kpan.b_line_break.config;
 
 import kpan.b_line_break.config.core.ConfigAnnotations.ConfigOrder;
+import kpan.b_line_break.config.core.ConfigAnnotations.FileComment;
 import kpan.b_line_break.config.core.ConfigAnnotations.Id;
 import kpan.b_line_break.config.core.ConfigVersionUpdateContext;
 
 public class ConfigHolder {
 
     @Id("Client")
+    @FileComment("Client Settings(Rendering, resources, etc.)")
     @ConfigOrder(1)
     public static Client client = new Client();
 
     public static class Client {
 
         @Id("LineBreakAlgorithm")
+        @FileComment("The algorithm used for line breaks")
         @ConfigOrder(1)
         public Algorithm lineBreakAlgorithm = Algorithm.NON_ASCII;
 
