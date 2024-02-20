@@ -113,16 +113,18 @@ public class StringReader {
 		return res;
 	}
 
-	public String readQuotedString() {
-		if (!canRead()) {
-			return "";
-		}
-		expect('"');
-		int index = string.indexOf('"', cursor);
-		if (index == -1)
-			return null;
-		return readTo(index + 1);
-	}
+    public String readQuotedString() {
+        if (!canRead()) {
+            return "";
+        }
+        expect('"');
+        int index = string.indexOf('"', cursor);
+        if (index == -1)
+            return null;
+        String res = readTo(index);
+        skip();
+        return res;
+    }
 	public String readStr(Predicate<Character> filter) {
 		int start = cursor;
 		while (canRead() && filter.test(peek())) {
