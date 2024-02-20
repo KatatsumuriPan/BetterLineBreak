@@ -13,6 +13,15 @@ public class ConfigAnnotations {
         String value();
     }
 
+    // .cfgファイルに書き込まれるコメント
+    // GUIで表示されるものはこれではなく、Idから翻訳キーを通したもの
+    // シングルの場合のみ、Idからの翻訳を適用するようにしている
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface FileComment {
+        String value();
+    }
+
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.FIELD)
     public @interface ConfigOrder {

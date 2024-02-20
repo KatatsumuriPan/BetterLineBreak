@@ -14,8 +14,8 @@ public class ConfigPropertyString extends AbstractConfigProperty {
     private final String defaultValue;
     private String value;
 
-    public ConfigPropertyString(String id, String defaultValue, int order) {
-        super(id, order);
+    public ConfigPropertyString(String id, String defaultValue, String commentForFile, int order) {
+        super(id, commentForFile, order);
         this.defaultValue = defaultValue;
         value = defaultValue;
     }

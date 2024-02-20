@@ -17,7 +17,6 @@ import kpan.b_line_break.config.core.properties.ConfigPropertyFloat;
 import kpan.b_line_break.config.core.properties.ConfigPropertyInt;
 import kpan.b_line_break.config.core.properties.ConfigPropertyLong;
 import kpan.b_line_break.config.core.properties.ConfigPropertyString;
-import net.minecraft.client.resources.I18n;
 import net.minecraftforge.common.config.Configuration;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
@@ -36,6 +35,7 @@ public class ModConfigCategory implements IConfigElement {
     private final String id;
     public final boolean isRoot;
     private final ModConfigurationFile configuration;
+    private String commentForFile = "";
     private int order = 0;
     private boolean showInGUI = true;
     private final Map<String, ModConfigCategory> children = new TreeMap<>();
@@ -49,6 +49,13 @@ public class ModConfigCategory implements IConfigElement {
 
     public String getId() {
         return id;
+    }
+
+    public void setCommentForFile(String commentForFile) {
+        this.commentForFile = commentForFile;
+    }
+    public String getCommentForFile() {
+        return commentForFile;
     }
 
     public String getNameTranslationKey(String path) {
@@ -91,9 +98,8 @@ public class ModConfigCategory implements IConfigElement {
     public void write(BufferedWriter out, int indent, String path) throws IOException {
         String pad = getIndent(indent);
 
-        String commentKey = getCommentTranslationKey(path);
-        String comment = I18n.format(commentKey);
-        if (!comment.equals(commentKey)) {
+        String comment = CommentLocalizer.tryLocalize(getCommentTranslationKey(path), getCommentForFile());
+        if (!comment.isEmpty()) {
             writeLine(out, pad, Configuration.COMMENT_SEPARATOR);
             writeLine(out, pad, "# ", id);
             writeLine(out, pad, "#--------------------------------------------------------------------------------------------------------#");
@@ -151,52 +157,52 @@ public class ModConfigCategory implements IConfigElement {
         return children.get(name);
     }
 
-    public void create(String id, boolean defaultValue, int order) {
+    public void create(String id, String commentForFile, boolean defaultValue, int order) {
         if (get(id) != null)
             throw new IllegalStateException("property named to \"" + id + "\" already exists!");
-        ConfigPropertyBool property = new ConfigPropertyBool(id, defaultValue, order);
+        ConfigPropertyBool property = new ConfigPropertyBool(id, defaultValue, commentForFile, order);
         put(id, property);
     }
 
-    public void create(String id, int defaultValue, int minValue, int maxValue, int order) {
+    public void create(String id, String commentForFile, int defaultValue, int minValue, int maxValue, int order) {
         if (get(id) != null)
             throw new IllegalStateException("property named to \"" + id + "\" already exists!");
-        ConfigPropertyInt property = new ConfigPropertyInt(id, defaultValue, minValue, maxValue, order);
+        ConfigPropertyInt property = new ConfigPropertyInt(id, defaultValue, minValue, maxValue, commentForFile, order);
         put(id, property);
     }
 
-    public void create(String id, long defaultValue, long minValue, long maxValue, int order) {
+    public void create(String id, String commentForFile, long defaultValue, long minValue, long maxValue, int order) {
         if (get(id) != null)
             throw new IllegalStateException("property named to \"" + id + "\" already exists!");
-        ConfigPropertyLong property = new ConfigPropertyLong(id, defaultValue, minValue, maxValue, order);
+        ConfigPropertyLong property = new ConfigPropertyLong(id, defaultValue, minValue, maxValue, commentForFile, order);
         put(id, property);
     }
 
-    public void create(String id, float defaultValue, float minValue, float maxValue, int order) {
+    public void create(String id, String commentForFile, float defaultValue, float minValue, float maxValue, int order) {
         if (get(id) != null)
             throw new IllegalStateException("property named to \"" + id + "\" already exists!");
-        ConfigPropertyFloat property = new ConfigPropertyFloat(id, defaultValue, minValue, maxValue, order);
+        ConfigPropertyFloat property = new ConfigPropertyFloat(id, defaultValue, minValue, maxValue, commentForFile, order);
         put(id, property);
     }
 
-    public void create(String id, double defaultValue, double minValue, double maxValue, int order) {
+    public void create(String id, String commentForFile, double defaultValue, double minValue, double maxValue, int order) {
         if (get(id) != null)
             throw new IllegalStateException("property named to \"" + id + "\" already exists!");
-        ConfigPropertyDouble property = new ConfigPropertyDouble(id, defaultValue, minValue, maxValue, order);
+        ConfigPropertyDouble property = new ConfigPropertyDouble(id, defaultValue, minValue, maxValue, commentForFile, order);
         put(id, property);
     }
 
-    public void create(String id, String defaultValue, int order) {
+    public void create(String id, String commentForFile, String defaultValue, int order) {
         if (get(id) != null)
             throw new IllegalStateException("property named to \"" + id + "\" already exists!");
-        ConfigPropertyString property = new ConfigPropertyString(id, defaultValue, order);
+        ConfigPropertyString property = new ConfigPropertyString(id, defaultValue, commentForFile, order);
         put(id, property);
     }
 
-    public void create(String id, Enum<?> defaultValue, int order) {
+    public void create(String id, String commentForFile, Enum<?> defaultValue, int order) {
         if (get(id) != null)
             throw new IllegalStateException("property named to \"" + id + "\" already exists!");
-        ConfigPropertyEnum property = new ConfigPropertyEnum(id, defaultValue, order);
+        ConfigPropertyEnum property = new ConfigPropertyEnum(id, defaultValue, commentForFile, order);
         put(id, property);
     }
 

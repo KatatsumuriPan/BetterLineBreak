@@ -260,88 +260,88 @@ public class ModConfigurationFile {
         return category;
     }
 
-    public void createBool(String id, String categoryPath, boolean defaultValue, int order) {
-        getOrCreateCategory(categoryPath).create(id, defaultValue, order);
+    public void createBool(String id, String categoryPath, boolean defaultValue, String commentForFile, int order) {
+        getOrCreateCategory(categoryPath).create(id, commentForFile, defaultValue, order);
     }
 
-    public void createInt(String name, String categoryPath, int defaultValue, int minValue, int maxValue, int order) {
-        getOrCreateCategory(categoryPath).create(name, defaultValue, minValue, maxValue, order);
+    public void createInt(String id, String categoryPath, int defaultValue, int minValue, int maxValue, String commentForFile, int order) {
+        getOrCreateCategory(categoryPath).create(id, commentForFile, defaultValue, minValue, maxValue, order);
     }
 
-    public void createLong(String name, String categoryPath, long defaultValue, long minValue, long maxValue, int order) {
-        getOrCreateCategory(categoryPath).create(name, defaultValue, minValue, maxValue, order);
+    public void createLong(String id, String categoryPath, long defaultValue, long minValue, long maxValue, String commentForFile, int order) {
+        getOrCreateCategory(categoryPath).create(id, commentForFile, defaultValue, minValue, maxValue, order);
     }
 
-    public void createFloat(String name, String categoryPath, float defaultValue, float minValue, float maxValue, int order) {
-        getOrCreateCategory(categoryPath).create(name, defaultValue, minValue, maxValue, order);
+    public void createFloat(String id, String categoryPath, float defaultValue, float minValue, float maxValue, String commentForFile, int order) {
+        getOrCreateCategory(categoryPath).create(id, commentForFile, defaultValue, minValue, maxValue, order);
     }
 
-    public void createDouble(String name, String categoryPath, double defaultValue, double minValue, double maxValue, int order) {
-        getOrCreateCategory(categoryPath).create(name, defaultValue, minValue, maxValue, order);
+    public void createDouble(String id, String categoryPath, double defaultValue, double minValue, double maxValue, String commentForFile, int order) {
+        getOrCreateCategory(categoryPath).create(id, commentForFile, defaultValue, minValue, maxValue, order);
     }
 
-    public void createString(String name, String categoryPath, String defaultValue, int order) {
-        getOrCreateCategory(categoryPath).create(name, defaultValue, order);
+    public void createString(String id, String categoryPath, String defaultValue, String commentForFile, int order) {
+        getOrCreateCategory(categoryPath).create(id, commentForFile, defaultValue, order);
     }
 
-    public void createEnum(String name, String categoryPath, Enum<?> defaultValue, int order) {
-        getOrCreateCategory(categoryPath).create(name, defaultValue, order);
+    public void createEnum(String id, String categoryPath, Enum<?> defaultValue, String commentForFile, int order) {
+        getOrCreateCategory(categoryPath).create(id, commentForFile, defaultValue, order);
     }
 
-    public boolean getBool(String name, String categoryPath) {
-        return getCategory(categoryPath).getBool(name);
+    public boolean getBool(String id, String categoryPath) {
+        return getCategory(categoryPath).getBool(id);
     }
 
-    public int getInt(String name, String categoryPath) {
-        return getCategory(categoryPath).getInt(name);
+    public int getInt(String id, String categoryPath) {
+        return getCategory(categoryPath).getInt(id);
     }
 
-    public long getLong(String name, String categoryPath) {
-        return getCategory(categoryPath).getLong(name);
+    public long getLong(String id, String categoryPath) {
+        return getCategory(categoryPath).getLong(id);
     }
 
-    public float getFloat(String name, String categoryPath) {
-        return getCategory(categoryPath).getFloat(name);
+    public float getFloat(String id, String categoryPath) {
+        return getCategory(categoryPath).getFloat(id);
     }
 
-    public double getDouble(String name, String categoryPath) {
-        return getCategory(categoryPath).getDouble(name);
+    public double getDouble(String id, String categoryPath) {
+        return getCategory(categoryPath).getDouble(id);
     }
 
-    public String getString(String name, String categoryPath) {
-        return getCategory(categoryPath).getString(name);
+    public String getString(String id, String categoryPath) {
+        return getCategory(categoryPath).getString(id);
     }
 
-    public <E extends Enum<E>> E getEnum(String name, String categoryPath) {
-        return getCategory(categoryPath).getEnum(name);
+    public <E extends Enum<E>> E getEnum(String id, String categoryPath) {
+        return getCategory(categoryPath).getEnum(id);
     }
 
-    public void setBool(String name, String categoryPath, boolean value) {
-        getCategory(categoryPath).setBool(name, value);
+    public void setBool(String id, String categoryPath, boolean value) {
+        getCategory(categoryPath).setBool(id, value);
     }
 
-    public void setInt(String name, String categoryPath, int value) {
-        getCategory(categoryPath).setInt(name, value);
+    public void setInt(String id, String categoryPath, int value) {
+        getCategory(categoryPath).setInt(id, value);
     }
 
-    public void setLong(String name, String categoryPath, long value) {
-        getCategory(categoryPath).setLong(name, value);
+    public void setLong(String id, String categoryPath, long value) {
+        getCategory(categoryPath).setLong(id, value);
     }
 
-    public void setFloat(String name, String categoryPath, float value) {
-        getCategory(categoryPath).setFloat(name, value);
+    public void setFloat(String id, String categoryPath, float value) {
+        getCategory(categoryPath).setFloat(id, value);
     }
 
-    public void setDouble(String name, String categoryPath, double value) {
-        getCategory(categoryPath).setDouble(name, value);
+    public void setDouble(String id, String categoryPath, double value) {
+        getCategory(categoryPath).setDouble(id, value);
     }
 
-    public void setString(String name, String categoryPath, String value) {
-        getCategory(categoryPath).setString(name, value);
+    public void setString(String id, String categoryPath, String value) {
+        getCategory(categoryPath).setString(id, value);
     }
 
-    public void setEnum(String name, String categoryPath, Enum<?> value) {
-        getCategory(categoryPath).setEnum(name, value);
+    public void setEnum(String id, String categoryPath, Enum<?> value) {
+        getCategory(categoryPath).setEnum(id, value);
     }
 
     public static boolean isValidChar(char c) {

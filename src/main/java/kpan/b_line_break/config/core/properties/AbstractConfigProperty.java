@@ -2,9 +2,9 @@ package kpan.b_line_break.config.core.properties;
 
 import com.google.common.base.Splitter;
 import kpan.b_line_break.ModReference;
+import kpan.b_line_break.config.core.CommentLocalizer;
 import kpan.b_line_break.config.core.IConfigElement;
 import kpan.b_line_break.config.core.ModConfigCategory;
-import net.minecraft.client.resources.I18n;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -12,6 +12,7 @@ import java.io.IOException;
 public abstract class AbstractConfigProperty implements IConfigElement {
 
     private final String id;
+    private final String commentForFile;
     private final int order;
 
     private boolean isReadValue = false;
@@ -20,8 +21,9 @@ public abstract class AbstractConfigProperty implements IConfigElement {
     protected boolean requiresMcRestart = false;
     protected boolean dirty = false;
 
-    protected AbstractConfigProperty(String id, int order) {
+    protected AbstractConfigProperty(String id, String commentForFile, int order) {
         this.id = id;
+        this.commentForFile = commentForFile;
         this.order = order;
     }
 
@@ -34,6 +36,9 @@ public abstract class AbstractConfigProperty implements IConfigElement {
         return id;
     }
 
+    public String getCommentForFile() {
+        return commentForFile;
+    }
     public String getNameTranslationKey(String path) {
         return ModReference.MODID + ".config." + path + "." + getId();
     }
@@ -79,12 +84,11 @@ public abstract class AbstractConfigProperty implements IConfigElement {
     public void write(BufferedWriter out, int indent, String path) throws IOException {
         String pad0 = ModConfigCategory.getIndent(indent);
 
-        String commentKey = getCommentTranslationKey(path);
-        String comment = I18n.format(commentKey);
-        if (!comment.equals(commentKey) || !getAdditionalComment().isEmpty()) {
+        String comment = CommentLocalizer.tryLocalize(getCommentTranslationKey(path), getCommentForFile());
+        if (!comment.isEmpty() || !getAdditionalComment().isEmpty()) {
 
             Splitter splitter = Splitter.onPattern("\r?\n");
-            if (!comment.equals(commentKey)) {
+            if (!comment.isEmpty()) {
                 for (String commentLine : splitter.split(comment)) {
                     ModConfigCategory.writeLine(out, pad0, "# ", commentLine);
                 }
@@ -120,8 +124,8 @@ public abstract class AbstractConfigProperty implements IConfigElement {
         protected boolean isListLengthFixed = false;
         protected int maxListLength = -1;
 
-        protected AbstractConfigPropertyList(String translationKey, int order) {
-            super(translationKey, order);
+        protected AbstractConfigPropertyList(String id, String commentForFile, int order) {
+            super(id, commentForFile, order);
         }
 
         public abstract String[] getStringValues();

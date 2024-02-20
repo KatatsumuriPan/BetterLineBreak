@@ -17,8 +17,8 @@ public class ConfigPropertyDouble extends AbstractConfigProperty {
     private double value;
     private boolean hasSlidingControl = false;
 
-    public ConfigPropertyDouble(String id, double defaultValue, double minValue, double maxValue, int order) {
-        super(id, order);
+    public ConfigPropertyDouble(String id, double defaultValue, double minValue, double maxValue, String commentForFile, int order) {
+        super(id, commentForFile, order);
         this.defaultValue = defaultValue;
         this.minValue = minValue;
         this.maxValue = maxValue;

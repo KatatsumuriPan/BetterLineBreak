@@ -17,8 +17,8 @@ public class ConfigPropertyInt extends AbstractConfigProperty {
     private int value;
     private boolean hasSlidingControl = false;
 
-    public ConfigPropertyInt(String id, int defaultValue, int minValue, int maxValue, int order) {
-        super(id, order);
+    public ConfigPropertyInt(String id, int defaultValue, int minValue, int maxValue, String commentForFile, int order) {
+        super(id, commentForFile, order);
         this.defaultValue = defaultValue;
         this.minValue = minValue;
         this.maxValue = maxValue;
