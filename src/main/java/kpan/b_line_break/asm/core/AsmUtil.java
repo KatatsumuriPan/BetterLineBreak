@@ -158,11 +158,11 @@ public class AsmUtil {
     }
 
     public static String runtimeMethodGenerics(String deobfGenerics) {
-        throw new RuntimeException("runtimeMethodGenerics is not implemented yet");//TODO
+        throw new NotImplementedException("TODO");//TODO
     }
 
     public static String[] runtimeExceptions(String[] deobfExceptions) {
-        throw new RuntimeException("runtimeMethodGenerics is not implemented yet");//TODO
+        throw new NotImplementedException("TODO");//TODO
     }
 
     public static int toLoadOpcode(String desc) {
